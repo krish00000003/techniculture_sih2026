@@ -51,6 +51,9 @@ export default function Login() {
   const [phone, setPhone] = useState('');
   const [channel, setChannel] = useState('whatsapp');
 
+  const [loading, setLoading] = useState(false);
+  const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
+
   /* ── Password Login Submit ── */
   const handlePasswordLogin = async (e) => {
     e.preventDefault();
