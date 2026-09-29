@@ -144,6 +144,10 @@ export default function DashboardLayout() {
           variant="temporary"
           open={drawerOpen}
           onClose={() => setDrawerOpen(false)}
+          ModalProps={{
+            keepMounted: true,
+            disableRestoreFocus: true,
+          }}
           sx={{ '& .MuiDrawer-paper': { width: DRAWER_WIDTH, bgcolor: 'background.paper' } }}
         >
           {drawerContent}
@@ -164,7 +168,14 @@ export default function DashboardLayout() {
         >
           <Toolbar>
             {!isDesktop && (
-              <IconButton edge="start" onClick={() => setDrawerOpen(true)} sx={{ mr: 1 }}>
+              <IconButton
+                edge="start"
+                onClick={(e) => {
+                  e.currentTarget.blur();
+                  setDrawerOpen(true);
+                }}
+                sx={{ mr: 1 }}
+              >
                 <MenuIcon />
               </IconButton>
             )}

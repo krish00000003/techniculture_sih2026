@@ -236,14 +236,53 @@ exports.register = async (req, res) => {
       }
 
       const cleanPhone = phone.trim();
-      const existingUser = await User.findOne({ phone: cleanPhone });
-      if (existingUser) {
-        return res.status(400).json({ message: 'An account with this phone number already exists. Please log in.' });
+      let user = await User.findOne({ phone: cleanPhone });
+
+      if (user) {
+        // Complete/update existing trainee profile
+        user.name = name.trim();
+        if (email) user.email = email.trim();
+        if (!user.outcomeId) {
+          user.outcomeId = 'OID-' + Math.floor(100000 + Math.random() * 900000);
+        }
+        await user.save();
+
+        let trainee = await Trainee.findOne({ userId: user._id });
+        if (!trainee) {
+          trainee = await Trainee.create({
+            userId: user._id,
+            outcomeId: user.outcomeId,
+            district: district ? district.trim() : 'Unspecified',
+            language: language || 'en',
+            employmentStatus: 'unemployed',
+            jobPoolOptIn: true,
+          });
+        } else {
+          if (district) trainee.district = district.trim();
+          if (language) trainee.language = language;
+          if (!trainee.outcomeId) trainee.outcomeId = user.outcomeId;
+          await trainee.save();
+        }
+
+        const token = signJWT(user);
+        return res.status(200).json({
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            phone: user.phone,
+            email: user.email,
+            role: user.role,
+            outcomeId: user.outcomeId,
+          },
+          message: 'Trainee profile completed successfully',
+        });
       }
 
+      // New trainee user
       const outcomeId = 'OID-' + Math.floor(100000 + Math.random() * 900000);
 
-      const user = await User.create({
+      user = await User.create({
         name: name.trim(),
         phone: cleanPhone,
         email: email ? email.trim() : undefined,
@@ -294,14 +333,49 @@ exports.register = async (req, res) => {
       const query = [];
       if (email) query.push({ email: email.trim().toLowerCase() });
       if (phone) query.push({ phone: phone.trim() });
+      
+      let user = null;
       if (query.length > 0) {
-        const existing = await User.findOne({ $or: query });
-        if (existing) {
-          return res.status(400).json({ message: 'An account with this email/phone already exists. Please log in.' });
-        }
+        user = await User.findOne({ $or: query });
       }
 
-      const user = await User.create({
+      if (user) {
+        user.name = name.trim();
+        user.role = 'employer';
+        await user.save();
+
+        let emp = await Employer.findOne({ userId: user._id });
+        if (!emp) {
+          emp = await Employer.create({
+            userId: user._id,
+            companyName: companyName.trim(),
+            gstin: gstin ? gstin.trim().toUpperCase() : '27AAACG0000A1Z5',
+            cin: cin ? cin.trim().toUpperCase() : undefined,
+            registryStatus: 'verified',
+            verified: true,
+          });
+        } else {
+          emp.companyName = companyName.trim();
+          if (gstin) emp.gstin = gstin.trim().toUpperCase();
+          if (cin) emp.cin = cin.trim().toUpperCase();
+          await emp.save();
+        }
+
+        const token = signJWT(user);
+        return res.status(200).json({
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+          },
+          message: 'Employer profile updated successfully',
+        });
+      }
+
+      user = await User.create({
         name: name.trim(),
         email: email ? email.trim().toLowerCase() : undefined,
         phone: phone ? phone.trim() : undefined,
@@ -343,14 +417,46 @@ exports.register = async (req, res) => {
       const query = [];
       if (email) query.push({ email: email.trim().toLowerCase() });
       if (phone) query.push({ phone: phone.trim() });
+      
+      let user = null;
       if (query.length > 0) {
-        const existing = await User.findOne({ $or: query });
-        if (existing) {
-          return res.status(400).json({ message: 'An account with this email/phone already exists. Please log in.' });
-        }
+        user = await User.findOne({ $or: query });
       }
 
-      const user = await User.create({
+      if (user) {
+        user.name = name.trim();
+        user.role = 'provider';
+        await user.save();
+
+        let prov = await Provider.findOne({ userId: user._id });
+        if (!prov) {
+          prov = await Provider.create({
+            userId: user._id,
+            name: companyName ? companyName.trim() : name.trim(),
+            district: district.trim(),
+            verified: true,
+          });
+        } else {
+          prov.name = companyName ? companyName.trim() : name.trim();
+          prov.district = district.trim();
+          await prov.save();
+        }
+
+        const token = signJWT(user);
+        return res.status(200).json({
+          token,
+          user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            role: user.role,
+          },
+          message: 'Training Provider profile updated successfully',
+        });
+      }
+
+      user = await User.create({
         name: name.trim(),
         email: email ? email.trim().toLowerCase() : undefined,
         phone: phone ? phone.trim() : undefined,

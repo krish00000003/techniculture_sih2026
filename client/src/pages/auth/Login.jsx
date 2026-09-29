@@ -166,10 +166,12 @@ export default function Login() {
               placeholder="+91 98765 43210"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <PhoneAndroidIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <PhoneAndroidIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />
+                  ),
+                },
               }}
               sx={{ mb: 2 }}
             />

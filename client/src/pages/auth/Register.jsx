@@ -227,8 +227,10 @@ export default function Register() {
               onChange={(e) => setName(e.target.value)}
               placeholder={role === 'employer' ? 'e.g. Rahul Sharma' : 'e.g. Priya Patil'}
               required
-              InputProps={{
-                startAdornment: <PersonOutlinedIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+              slotProps={{
+                input: {
+                  startAdornment: <PersonOutlinedIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                },
               }}
             />
 
@@ -243,8 +245,10 @@ export default function Register() {
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Apex Engineering Ltd"
                 required
-                InputProps={{
-                  startAdornment: <BusinessIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                slotProps={{
+                  input: {
+                    startAdornment: <BusinessIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                  },
                 }}
               />
             )}
@@ -259,8 +263,10 @@ export default function Register() {
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="e.g. Skill India Training Academy"
                 required
-                InputProps={{
-                  startAdornment: <SchoolIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                slotProps={{
+                  input: {
+                    startAdornment: <SchoolIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                  },
                 }}
               />
             )}
@@ -276,8 +282,10 @@ export default function Register() {
               placeholder="+91 98765 43210"
               required={role === 'trainee'}
               helperText={role === 'trainee' ? 'Used for passwordless login & outcome check-ins' : ''}
-              InputProps={{
-                startAdornment: <PhoneAndroidIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+              slotProps={{
+                input: {
+                  startAdornment: <PhoneAndroidIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                },
               }}
             />
 
@@ -293,8 +301,10 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@company.com"
                 required
-                InputProps={{
-                  startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                slotProps={{
+                  input: {
+                    startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                  },
                 }}
               />
             )}
