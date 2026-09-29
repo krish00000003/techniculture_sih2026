@@ -37,7 +37,7 @@ jobs:
       - name: Build frontend
         env:
           GITHUB_PAGES: 'true'
-          # Set VITE_API_URL if you have your Render backend URL, e.g. https://your-backend.onrender.com/api
+          VITE_API_URL: 'https://techniculture-sih2026.onrender.com/api'
         run: |
           cd client
           npm run build
