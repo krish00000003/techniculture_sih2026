@@ -19,6 +19,7 @@ import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import BusinessIcon from '@mui/icons-material/Business';
 import SchoolIcon from '@mui/icons-material/School';
+import PersonIcon from '@mui/icons-material/Person';
 import { useAuth, ROLE_HOME } from '../../context/AuthContext';
 
 export default function Login() {
@@ -220,7 +221,17 @@ export default function Login() {
               {devLoading === 'admin' ? 'Logging in...' : 'Log In As Admin (Instant)'}
             </Button>
 
-            <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, mt: 0.5 }}>
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mt: 0.5 }}>
+              <Button
+                id="dev-login-trainee-btn"
+                variant="outlined"
+                size="small"
+                startIcon={devLoading === 'trainee' ? <CircularProgress size={14} color="inherit" /> : <PersonIcon />}
+                onClick={() => handleDevLogin('trainee')}
+                disabled={Boolean(devLoading)}
+              >
+                Trainee
+              </Button>
               <Button
                 id="dev-login-provider-btn"
                 variant="outlined"
