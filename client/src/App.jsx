@@ -7,6 +7,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 
 // Auth pages
 import Login from './pages/auth/Login';
+import Register from './pages/auth/Register';
 import MagicLinkVerify from './pages/auth/MagicLink';
 
 // Role home pages
@@ -44,6 +45,7 @@ export default function App() {
         {/* ── Public routes ── */}
         <Route element={<PublicLayout />}>
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
           <Route path="auth/magic-link/:token" element={<MagicLinkVerify />} />
         </Route>
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Alert,
   Box,
@@ -9,6 +9,8 @@ import {
   CircularProgress,
   Divider,
   Snackbar,
+  Tab,
+  Tabs,
   TextField,
   Typography,
 } from '@mui/material';
@@ -116,6 +118,23 @@ export default function Login() {
             </Typography>
           </Box>
 
+          {/* Navigation Tabs (Login / Register) */}
+          <Tabs
+            value={0}
+            variant="fullWidth"
+            textColor="primary"
+            indicatorColor="primary"
+            sx={{
+              mb: 3,
+              borderBottom: 1,
+              borderColor: 'divider',
+              '& .MuiTab-root': { fontWeight: 700, fontSize: '0.95rem' },
+            }}
+          >
+            <Tab label="Log In" />
+            <Tab label="Register" component={RouterLink} to="/register" />
+          </Tabs>
+
           {/* Google Sign-In */}
           <Button
             fullWidth
@@ -221,6 +240,28 @@ export default function Login() {
                 Employer
               </Button>
             </Box>
+          </Box>
+
+          <Divider sx={{ my: 2.5 }} />
+
+          {/* Switch to Register link */}
+          <Box sx={{ textAlign: 'center' }}>
+            <Typography variant="body2" color="text.secondary">
+              Don't have an account?{' '}
+              <Typography
+                component={RouterLink}
+                to="/register"
+                variant="body2"
+                sx={{
+                  color: 'primary.main',
+                  fontWeight: 700,
+                  textDecoration: 'none',
+                  '&:hover': { textDecoration: 'underline' },
+                }}
+              >
+                Register here
+              </Typography>
+            </Typography>
           </Box>
         </CardContent>
       </Card>

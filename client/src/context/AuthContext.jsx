@@ -66,6 +66,13 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  /** Register new user */
+  const register = async (formData) => {
+    const { data } = await api.post('/auth/register', formData);
+    handleLoginResponse(data);
+    return data.user;
+  };
+
   /** Dev Login Bypass */
   const devLogin = async (role = 'admin') => {
     const { data } = await api.post('/auth/dev-login', { role });
@@ -87,6 +94,7 @@ export function AuthProvider({ children }) {
       loginWithGoogle,
       requestMagicLink,
       verifyMagicLink,
+      register,
       devLogin,
       logout,
       roleHome: user ? ROLE_HOME[user.role] || '/' : '/login',

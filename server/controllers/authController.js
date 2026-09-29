@@ -1,6 +1,10 @@
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Trainee = require('../models/Trainee');
+const Employer = require('../models/Employer');
+const Provider = require('../models/Provider');
+const OutcomeId = require('../models/OutcomeId');
 const MagicLink = require('../models/MagicLink');
 const {
   generateToken,
@@ -197,6 +201,186 @@ exports.getMe = async (req, res) => {
   } catch (err) {
     console.error('Get me error:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+/**
+ * POST /api/auth/register
+ * Body: { role, name, email, phone, companyName, gstin, cin, district, language }
+ */
+exports.register = async (req, res) => {
+  try {
+    const {
+      role = 'trainee',
+      name,
+      email,
+      phone,
+      companyName,
+      gstin,
+      cin,
+      district,
+      language = 'en',
+    } = req.body;
+
+    if (!role || !['trainee', 'employer', 'provider'].includes(role)) {
+      return res.status(400).json({ message: 'Valid role is required (trainee, employer, provider)' });
+    }
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: 'Name is required' });
+    }
+
+    if (role === 'trainee') {
+      if (!phone || !phone.trim()) {
+        return res.status(400).json({ message: 'Phone number is required for trainee registration' });
+      }
+
+      const cleanPhone = phone.trim();
+      const existingUser = await User.findOne({ phone: cleanPhone });
+      if (existingUser) {
+        return res.status(400).json({ message: 'An account with this phone number already exists. Please log in.' });
+      }
+
+      const outcomeId = 'OID-' + Math.floor(100000 + Math.random() * 900000);
+
+      const user = await User.create({
+        name: name.trim(),
+        phone: cleanPhone,
+        email: email ? email.trim() : undefined,
+        role: 'trainee',
+        outcomeId,
+        status: 'active',
+      });
+
+      const trainee = await Trainee.create({
+        userId: user._id,
+        outcomeId,
+        district: district ? district.trim() : 'Unspecified',
+        language: language || 'en',
+        employmentStatus: 'unemployed',
+        jobPoolOptIn: true,
+      });
+
+      await OutcomeId.create({
+        outcomeId,
+        linkedTraineeIds: [trainee._id],
+        matchScore: 100,
+        reviewStatus: 'auto-merged',
+      });
+
+      const token = signJWT(user);
+      return res.status(201).json({
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          phone: user.phone,
+          email: user.email,
+          role: user.role,
+          outcomeId: user.outcomeId,
+        },
+        message: 'Trainee registered successfully',
+      });
+    }
+
+    if (role === 'employer') {
+      if (!companyName || !companyName.trim()) {
+        return res.status(400).json({ message: 'Company name is required' });
+      }
+      if (!email && !phone) {
+        return res.status(400).json({ message: 'Email or phone number is required' });
+      }
+
+      const query = [];
+      if (email) query.push({ email: email.trim().toLowerCase() });
+      if (phone) query.push({ phone: phone.trim() });
+      if (query.length > 0) {
+        const existing = await User.findOne({ $or: query });
+        if (existing) {
+          return res.status(400).json({ message: 'An account with this email/phone already exists. Please log in.' });
+        }
+      }
+
+      const user = await User.create({
+        name: name.trim(),
+        email: email ? email.trim().toLowerCase() : undefined,
+        phone: phone ? phone.trim() : undefined,
+        role: 'employer',
+        status: 'active',
+      });
+
+      await Employer.create({
+        userId: user._id,
+        companyName: companyName.trim(),
+        gstin: gstin ? gstin.trim().toUpperCase() : '27AAACG0000A1Z5',
+        cin: cin ? cin.trim().toUpperCase() : undefined,
+        registryStatus: 'verified',
+        verified: true,
+      });
+
+      const token = signJWT(user);
+      return res.status(201).json({
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+        message: 'Employer registered successfully',
+      });
+    }
+
+    if (role === 'provider') {
+      if (!district || !district.trim()) {
+        return res.status(400).json({ message: 'District is required for training provider' });
+      }
+      if (!email && !phone) {
+        return res.status(400).json({ message: 'Email or phone number is required' });
+      }
+
+      const query = [];
+      if (email) query.push({ email: email.trim().toLowerCase() });
+      if (phone) query.push({ phone: phone.trim() });
+      if (query.length > 0) {
+        const existing = await User.findOne({ $or: query });
+        if (existing) {
+          return res.status(400).json({ message: 'An account with this email/phone already exists. Please log in.' });
+        }
+      }
+
+      const user = await User.create({
+        name: name.trim(),
+        email: email ? email.trim().toLowerCase() : undefined,
+        phone: phone ? phone.trim() : undefined,
+        role: 'provider',
+        status: 'active',
+      });
+
+      await Provider.create({
+        userId: user._id,
+        name: companyName ? companyName.trim() : name.trim(),
+        district: district.trim(),
+        verified: true,
+      });
+
+      const token = signJWT(user);
+      return res.status(201).json({
+        token,
+        user: {
+          id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role,
+        },
+        message: 'Training Provider registered successfully',
+      });
+    }
+  } catch (err) {
+    console.error('Registration error:', err);
+    res.status(500).json({ message: err.message || 'Registration failed' });
   }
 };
 
