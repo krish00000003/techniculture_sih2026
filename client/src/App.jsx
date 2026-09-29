@@ -30,6 +30,7 @@ import AdminActions from './pages/admin/Actions';
 import AdminAttrition from './pages/admin/Attrition';
 import AdminDuplicates from './pages/admin/Duplicates';
 import AdminSettings from './pages/admin/Settings';
+import UsersMinuteData from './pages/admin/UsersMinuteData';
 
 // Protected route wrapper
 import ProtectedRoute from './routes/ProtectedRoute';
@@ -89,9 +90,10 @@ export default function App() {
           </Route>
         </Route>
 
-        {/* ── Admin routes (S14–S19) ── */}
-        <Route element={<ProtectedRoute roles={['admin']} />}>
+        {/* ── Admin & Oversight routes ── */}
+        <Route element={<ProtectedRoute roles={['admin', 'manager', 'supervisor']} />}>
           <Route element={<DashboardLayout />}>
+            <Route path="admin/users" element={<UsersMinuteData />} />
             <Route path="admin/rankings" element={<AdminRankings />} />
             <Route path="admin/skill-gaps" element={<AdminSkillGaps />} />
             <Route path="admin/actions" element={<AdminActions />} />

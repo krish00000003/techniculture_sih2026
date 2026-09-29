@@ -48,6 +48,13 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials. User not found.' });
     }
 
+    if (user.status === 'pending_approval') {
+      return res.status(403).json({
+        message: 'Your registration is pending approval by an Admin, Manager, or Supervisor. Please check back later.',
+        pendingApproval: true,
+      });
+    }
+
     if (user.status === 'suspended') {
       return res.status(403).json({ message: 'Account is suspended. Please contact support.' });
     }
@@ -63,6 +70,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials. Incorrect password.' });
     }
 
+    // Update minute activity timestamp
+    user.lastLoginAt = new Date();
+    await user.save();
+
     const token = signJWT(user);
     res.json({
       token,
@@ -73,6 +84,7 @@ exports.login = async (req, res) => {
         phone: user.phone,
         role: user.role,
         outcomeId: user.outcomeId,
+        lastLoginAt: user.lastLoginAt,
       },
       message: 'Logged in successfully',
     });
@@ -223,50 +235,10 @@ exports.verifyMagicLink = async (req, res) => {
   }
 };
 
-/**
- * POST /api/auth/dev-login
- * Body: { role } - dev only bypass for quick local testing
- */
-exports.devLogin = async (req, res) => {
-  try {
-    const { role = 'admin' } = req.body;
-    let user = await User.findOne({ role });
-    if (!user) {
-      user = await User.create({
-        name: role.charAt(0).toUpperCase() + role.slice(1) + ' User',
-        email: `${role}@voctrack.in`,
-        role,
-        status: 'active',
-      });
-    }
-
-    if (role === 'trainee') {
-      let trainee = await Trainee.findOne({ userId: user._id });
-      if (!trainee) {
-        await Trainee.create({
-          userId: user._id,
-          district: 'Kolkata',
-          employmentStatus: 'unemployed',
-          jobPoolOptIn: true,
-        });
-      }
-    }
-
-    const token = signJWT(user);
-    res.json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role,
-      },
-    });
-  } catch (err) {
-    console.error('Dev login error:', err);
-    res.status(500).json({ message: 'Dev login failed' });
-  }
+exports.devLogin = async (_req, res) => {
+  return res.status(403).json({
+    message: 'Developer bypass has been disabled in this environment. Please sign in using your credentials.',
+  });
 };
 
 /**
@@ -500,7 +472,7 @@ exports.register = async (req, res) => {
         phone: phone ? phone.trim() : undefined,
         password: hashedPassword || undefined,
         role: 'employer',
-        status: 'active',
+        status: 'pending_approval',
       });
 
       await Employer.create({
@@ -508,21 +480,13 @@ exports.register = async (req, res) => {
         companyName: companyName.trim(),
         gstin: gstin ? gstin.trim().toUpperCase() : '27AAACG0000A1Z5',
         cin: cin ? cin.trim().toUpperCase() : undefined,
-        registryStatus: 'verified',
-        verified: true,
+        registryStatus: 'pending_verification',
+        verified: false,
       });
 
-      const token = signJWT(user);
       return res.status(201).json({
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
-        message: 'Employer registered successfully',
+        pendingApproval: true,
+        message: 'Employer registered successfully. Your account is pending verification and approval by an Admin, Manager, or Supervisor.',
       });
     }
 
@@ -546,6 +510,7 @@ exports.register = async (req, res) => {
       if (user) {
         user.name = name.trim();
         user.role = 'provider';
+        user.status = 'pending_approval';
         if (hashedPassword) user.password = hashedPassword;
         await user.save();
 
@@ -555,25 +520,18 @@ exports.register = async (req, res) => {
             userId: user._id,
             name: companyName ? companyName.trim() : name.trim(),
             district: district.trim(),
-            verified: true,
+            verified: false,
           });
         } else {
           prov.name = companyName ? companyName.trim() : name.trim();
           prov.district = district.trim();
+          prov.verified = false;
           await prov.save();
         }
 
-        const token = signJWT(user);
         return res.status(200).json({
-          token,
-          user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            phone: user.phone,
-            role: user.role,
-          },
-          message: 'Training Provider profile updated successfully',
+          pendingApproval: true,
+          message: 'Training Provider profile submitted. Pending approval by an Admin, Manager, or Supervisor.',
         });
       }
 
@@ -583,27 +541,19 @@ exports.register = async (req, res) => {
         phone: phone ? phone.trim() : undefined,
         password: hashedPassword || undefined,
         role: 'provider',
-        status: 'active',
+        status: 'pending_approval',
       });
 
       await Provider.create({
         userId: user._id,
         name: companyName ? companyName.trim() : name.trim(),
         district: district.trim(),
-        verified: true,
+        verified: false,
       });
 
-      const token = signJWT(user);
       return res.status(201).json({
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-        },
-        message: 'Training Provider registered successfully',
+        pendingApproval: true,
+        message: 'Training Provider registered successfully. Your account is pending verification and approval by an Admin, Manager, or Supervisor.',
       });
     }
   } catch (err) {

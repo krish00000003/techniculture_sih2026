@@ -35,7 +35,10 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 // ── Start ──
 const PORT = process.env.PORT || 5000;
 
-connectDB().then(() => {
+const ensureSuperAdmin = require('./seeds/ensureSuperAdmin');
+
+connectDB().then(async () => {
+  await ensureSuperAdmin();
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });

@@ -4,7 +4,7 @@ const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ['trainee', 'employer', 'provider', 'admin'],
+      enum: ['trainee', 'employer', 'provider', 'admin', 'manager', 'supervisor'],
       required: true,
     },
     googleId: { type: String, unique: true, sparse: true },
@@ -15,9 +15,12 @@ const userSchema = new mongoose.Schema(
     outcomeId: { type: String, index: true, sparse: true },
     status: {
       type: String,
-      enum: ['active', 'inactive', 'suspended'],
+      enum: ['active', 'inactive', 'suspended', 'pending_approval'],
       default: 'active',
     },
+    lastLoginAt: { type: Date },
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    approvedAt: { type: Date },
   },
   { timestamps: true }
 );

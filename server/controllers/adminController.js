@@ -6,6 +6,8 @@ const Alert = require('../models/Alert');
 const Enrollment = require('../models/Enrollment');
 const OutcomeId = require('../models/OutcomeId');
 const Trainee = require('../models/Trainee');
+const Employer = require('../models/Employer');
+const User = require('../models/User');
 const Settings = require('../models/Settings');
 
 /* ═══════════════════════════════════════════════
@@ -324,7 +326,6 @@ exports.updateSettings = async (req, res) => {
 
 exports.getStats = async (_req, res) => {
   try {
-    const User = require('../models/User');
     const [
       totalTrainees,
       totalProviders,
@@ -333,6 +334,8 @@ exports.getStats = async (_req, res) => {
       totalEnrollments,
       activeAlerts,
       pendingDuplicates,
+      totalManagers,
+      pendingApprovals,
     ] = await Promise.all([
       User.countDocuments({ role: 'trainee' }),
       Provider.countDocuments(),
@@ -341,6 +344,8 @@ exports.getStats = async (_req, res) => {
       Enrollment.countDocuments(),
       Alert.countDocuments({ status: 'pending' }),
       OutcomeId.countDocuments({ reviewStatus: 'pending' }),
+      User.countDocuments({ role: { $in: ['manager', 'supervisor'] } }),
+      User.countDocuments({ status: 'pending_approval' }),
     ]);
 
     res.json({
@@ -351,9 +356,271 @@ exports.getStats = async (_req, res) => {
       totalEnrollments,
       activeAlerts,
       pendingDuplicates,
+      totalManagers,
+      pendingApprovals,
     });
   } catch (err) {
     console.error('getStats error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+/* ═══════════════════════════════════════════════
+   User Directory & Minute-by-Minute Data Audit
+   ═══════════════════════════════════════════════ */
+
+exports.getUsersMinuteData = async (req, res) => {
+  try {
+    const { role, status, search, limit = 100, page = 1 } = req.query;
+    const filter = {};
+
+    if (role && role !== 'all') {
+      filter.role = role;
+    }
+    if (status && status !== 'all') {
+      filter.status = status;
+    }
+    if (search && search.trim()) {
+      const regex = new RegExp(search.trim(), 'i');
+      filter.$or = [
+        { name: regex },
+        { email: regex },
+        { phone: regex },
+        { outcomeId: regex },
+      ];
+    }
+
+    const total = await User.countDocuments(filter);
+    const users = await User.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((parseInt(page) - 1) * parseInt(limit))
+      .limit(parseInt(limit))
+      .lean();
+
+    // Attach role-specific summary data
+    const userIds = users.map((u) => u._id);
+    const [trainees, employers, providers] = await Promise.all([
+      Trainee.find({ userId: { $in: userIds } }).lean(),
+      Employer.find({ userId: { $in: userIds } }).lean(),
+      Provider.find({ userId: { $in: userIds } }).lean(),
+    ]);
+
+    const traineeMap = new Map(trainees.map((t) => [String(t.userId), t]));
+    const employerMap = new Map(employers.map((e) => [String(e.userId), e]));
+    const providerMap = new Map(providers.map((p) => [String(p.userId), p]));
+
+    const enrichedUsers = users.map((u) => {
+      const uId = String(u._id);
+      let details = null;
+      if (u.role === 'trainee') {
+        details = traineeMap.get(uId) || null;
+      } else if (u.role === 'employer') {
+        details = employerMap.get(uId) || null;
+      } else if (u.role === 'provider') {
+        details = providerMap.get(uId) || null;
+      }
+
+      return {
+        _id: u._id,
+        name: u.name,
+        email: u.email || '—',
+        phone: u.phone || '—',
+        role: u.role,
+        status: u.status,
+        outcomeId: u.outcomeId || (details && details.outcomeId) || '—',
+        createdAt: u.createdAt,
+        updatedAt: u.updatedAt,
+        lastLoginAt: u.lastLoginAt || null,
+        approvedAt: u.approvedAt || null,
+        details,
+      };
+    });
+
+    const [pendingCount, roleCounts] = await Promise.all([
+      User.countDocuments({ status: 'pending_approval' }),
+      User.aggregate([
+        { $group: { _id: '$role', count: { $sum: 1 } } },
+      ]),
+    ]);
+
+    const countsByRole = {};
+    roleCounts.forEach((r) => {
+      countsByRole[r._id] = r.count;
+    });
+
+    res.json({
+      users: enrichedUsers,
+      total,
+      page: parseInt(page),
+      pendingCount,
+      countsByRole,
+    });
+  } catch (err) {
+    console.error('getUsersMinuteData error:', err);
+    res.status(500).json({ message: 'Server error retrieving users audit' });
+  }
+};
+
+/**
+ * GET /api/admin/users/:id/details
+ * Fetch granular minute data for a specific user
+ */
+exports.getUserDetailedMinuteData = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findById(id).select('-password').lean();
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    let profile = null;
+    let enrollments = [];
+    let jobs = [];
+    let courses = [];
+    let linkedOutcomes = [];
+
+    if (user.role === 'trainee') {
+      profile = await Trainee.findOne({ userId: user._id }).lean();
+      if (profile) {
+        enrollments = await Enrollment.find({ traineeId: profile._id })
+          .populate('courseId', 'title sector skills durationWeeks')
+          .sort({ createdAt: -1 })
+          .lean();
+        linkedOutcomes = await OutcomeId.find({ linkedTraineeIds: profile._id }).lean();
+      }
+    } else if (user.role === 'employer') {
+      profile = await Employer.findOne({ userId: user._id }).lean();
+      if (profile) {
+        jobs = await Job.find({ employerId: profile._id }).sort({ createdAt: -1 }).lean();
+      }
+    } else if (user.role === 'provider') {
+      profile = await Provider.findOne({ userId: user._id }).lean();
+      if (profile) {
+        courses = await Course.find({ providerId: profile._id }).sort({ createdAt: -1 }).lean();
+      }
+    }
+
+    res.json({
+      user,
+      profile,
+      enrollments,
+      jobs,
+      courses,
+      linkedOutcomes,
+      auditTimestamps: {
+        registeredMinute: user.createdAt,
+        lastProfileUpdateMinute: user.updatedAt,
+        lastLoginMinute: user.lastLoginAt || null,
+        approvedMinute: user.approvedAt || null,
+      },
+    });
+  } catch (err) {
+    console.error('getUserDetailedMinuteData error:', err);
+    res.status(500).json({ message: 'Server error retrieving user details' });
+  }
+};
+
+/**
+ * PUT /api/admin/users/:id/role
+ * Admin-only: Promote or reassign roles (manager, supervisor, etc.)
+ */
+exports.updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+    const validRoles = ['trainee', 'employer', 'provider', 'admin', 'manager', 'supervisor'];
+
+    if (!role || !validRoles.includes(role)) {
+      return res.status(400).json({ message: 'Invalid role specified' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Protect primary super admin
+    if (user.email === 'admin@sih.in' && role !== 'admin') {
+      return res.status(403).json({ message: 'The primary Super Admin role cannot be demoted' });
+    }
+
+    user.role = role;
+    await user.save();
+
+    res.json({
+      message: `Role successfully updated to ${role}`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+    });
+  } catch (err) {
+    console.error('updateUserRole error:', err);
+    res.status(500).json({ message: 'Server error updating role' });
+  }
+};
+
+/**
+ * PUT /api/admin/users/:id/status
+ * Admin / Manager / Supervisor: Approve, reject, or suspend a user
+ */
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    const validStatuses = ['active', 'inactive', 'suspended', 'pending_approval'];
+
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid status specified' });
+    }
+
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Protect primary super admin
+    if (user.email === 'admin@sih.in' && status !== 'active') {
+      return res.status(403).json({ message: 'The primary Super Admin cannot be suspended' });
+    }
+
+    user.status = status;
+    if (status === 'active') {
+      user.approvedBy = req.user.id;
+      user.approvedAt = new Date();
+    }
+    await user.save();
+
+    // Sync verification status to role profiles
+    if (user.role === 'employer') {
+      await Employer.updateOne(
+        { userId: user._id },
+        { verified: status === 'active', registryStatus: status === 'active' ? 'verified' : 'pending_verification' }
+      );
+    } else if (user.role === 'provider') {
+      await Provider.updateOne(
+        { userId: user._id },
+        { verified: status === 'active' }
+      );
+    }
+
+    res.json({
+      message: `User status successfully updated to ${status}`,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+        approvedAt: user.approvedAt,
+      },
+    });
+  } catch (err) {
+    console.error('updateUserStatus error:', err);
+    res.status(500).json({ message: 'Server error updating status' });
+  }
+};
+

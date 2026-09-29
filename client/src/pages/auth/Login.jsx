@@ -36,7 +36,7 @@ import SmsIcon from '@mui/icons-material/Sms';
 import { useAuth, ROLE_HOME } from '../../context/AuthContext';
 
 export default function Login() {
-  const { loginWithPassword, requestMagicLink, devLogin } = useAuth();
+  const { loginWithPassword, requestMagicLink } = useAuth();
   const navigate = useNavigate();
 
   // Mode: 'password' | 'magic-link'
@@ -50,10 +50,6 @@ export default function Login() {
   // Magic link fields
   const [phone, setPhone] = useState('');
   const [channel, setChannel] = useState('whatsapp');
-
-  const [loading, setLoading] = useState(false);
-  const [devLoading, setDevLoading] = useState('');
-  const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
   /* ── Password Login Submit ── */
   const handlePasswordLogin = async (e) => {
@@ -109,30 +105,6 @@ export default function Login() {
       });
     } finally {
       setLoading(false);
-    }
-  };
-
-  /* ── Dev Login Bypass ── */
-  const handleDevLogin = async (role) => {
-    setDevLoading(role);
-    try {
-      const user = await devLogin(role);
-      setSnack({
-        open: true,
-        message: `Logged in as ${role}! Redirecting...`,
-        severity: 'success',
-      });
-      setTimeout(() => {
-        navigate(ROLE_HOME[user.role] || '/');
-      }, 500);
-    } catch (err) {
-      setSnack({
-        open: true,
-        message: err.response?.data?.message || 'Dev login failed',
-        severity: 'error',
-      });
-    } finally {
-      setDevLoading('');
     }
   };
 
@@ -424,65 +396,10 @@ export default function Login() {
             Continue with Google
           </Button>
 
-          {/* ── Quick Dev Login Bypass ── */}
-          <Divider sx={{ my: 2.5, fontSize: 11, fontWeight: 700, color: 'text.secondary', letterSpacing: 1 }}>
-            DEV TESTING BYPASS
-          </Divider>
-
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-            <Button
-              id="dev-login-admin-btn"
-              fullWidth
-              variant="contained"
-              color="primary"
-              size="large"
-              startIcon={devLoading === 'admin' ? <CircularProgress size={18} color="inherit" /> : <AdminPanelSettingsIcon />}
-              onClick={() => handleDevLogin('admin')}
-              disabled={Boolean(devLoading)}
-              sx={{
-                fontWeight: 700,
-                borderRadius: '10px',
-                boxShadow: '0 4px 14px rgba(113,201,206,0.3)',
-              }}
-            >
-              {devLoading === 'admin' ? 'Logging in...' : 'Log In As Admin (Instant)'}
-            </Button>
-
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mt: 0.5 }}>
-              <Button
-                id="dev-login-trainee-btn"
-                variant="outlined"
-                size="small"
-                startIcon={devLoading === 'trainee' ? <CircularProgress size={14} color="inherit" /> : <PersonIcon />}
-                onClick={() => handleDevLogin('trainee')}
-                disabled={Boolean(devLoading)}
-                sx={{ borderRadius: '8px' }}
-              >
-                Trainee
-              </Button>
-              <Button
-                id="dev-login-provider-btn"
-                variant="outlined"
-                size="small"
-                startIcon={devLoading === 'provider' ? <CircularProgress size={14} color="inherit" /> : <SchoolIcon />}
-                onClick={() => handleDevLogin('provider')}
-                disabled={Boolean(devLoading)}
-                sx={{ borderRadius: '8px' }}
-              >
-                Provider
-              </Button>
-              <Button
-                id="dev-login-employer-btn"
-                variant="outlined"
-                size="small"
-                startIcon={devLoading === 'employer' ? <CircularProgress size={14} color="inherit" /> : <BusinessIcon />}
-                onClick={() => handleDevLogin('employer')}
-                disabled={Boolean(devLoading)}
-                sx={{ borderRadius: '8px' }}
-              >
-                Employer
-              </Button>
-            </Box>
+          <Box sx={{ mt: 2.5, p: 1.5, borderRadius: '8px', bgcolor: 'rgba(113,201,206,0.08)', border: '1px solid rgba(113,201,206,0.25)', textAlign: 'center' }}>
+            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              Super Admin ID: <strong style={{ color: '#0984E3' }}>admin@sih.in</strong> | Password: <strong style={{ color: '#0984E3' }}>Admin@123</strong>
+            </Typography>
           </Box>
 
           <Divider sx={{ my: 2.5 }} />

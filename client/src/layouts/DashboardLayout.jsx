@@ -41,6 +41,8 @@ import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
@@ -104,6 +106,13 @@ const NAV = {
   admin: {
     sections: [
       {
+        label: 'Governance & Users',
+        items: [
+          { label: 'Users & Minute Audit', icon: <ManageAccountsIcon />, path: '/admin/users' },
+          { label: 'Settings', icon: <SettingsIcon />, path: '/admin/settings' },
+        ],
+      },
+      {
         label: 'Analytics',
         items: [
           { label: 'Rankings', icon: <LeaderboardIcon />, path: '/admin/rankings' },
@@ -116,7 +125,31 @@ const NAV = {
         items: [
           { label: 'Actions', icon: <PlaylistAddCheckIcon />, path: '/admin/actions' },
           { label: 'Duplicates', icon: <CompareArrowsIcon />, path: '/admin/duplicates' },
-          { label: 'Settings', icon: <SettingsIcon />, path: '/admin/settings' },
+        ],
+      },
+    ],
+  },
+  manager: {
+    sections: [
+      {
+        label: 'Management Oversight',
+        items: [
+          { label: 'Users & Minute Audit', icon: <ManageAccountsIcon />, path: '/admin/users' },
+          { label: 'Rankings', icon: <LeaderboardIcon />, path: '/admin/rankings' },
+          { label: 'Skill Gaps', icon: <TrendingUpIcon />, path: '/admin/skill-gaps' },
+          { label: 'Actions', icon: <PlaylistAddCheckIcon />, path: '/admin/actions' },
+        ],
+      },
+    ],
+  },
+  supervisor: {
+    sections: [
+      {
+        label: 'Supervision & Approvals',
+        items: [
+          { label: 'Users & Approvals', icon: <ManageAccountsIcon />, path: '/admin/users' },
+          { label: 'Actions', icon: <PlaylistAddCheckIcon />, path: '/admin/actions' },
+          { label: 'Duplicates', icon: <CompareArrowsIcon />, path: '/admin/duplicates' },
         ],
       },
     ],
@@ -617,62 +650,23 @@ export default function DashboardLayout() {
 
             <Box sx={{ flexGrow: 1 }} />
 
-            {/* ── Demo Role Switcher Chips ── */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mr: 1.5, flexWrap: 'wrap' }}>
-              <Typography
+            {/* ── User Role Badge (Read-Only) ── */}
+            {user?.role && (
+              <Chip
+                icon={user.role === 'admin' ? <AdminPanelSettingsIcon style={{ fontSize: 16 }} /> : undefined}
+                label={user.role === 'admin' ? 'SUPER ADMIN' : user.role.toUpperCase()}
+                size="small"
                 sx={{
-                  fontSize: '0.72rem',
-                  fontWeight: 700,
-                  color: isDark ? '#5B787C' : '#94A3B8',
-                  display: { xs: 'none', md: 'block' },
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.04em',
+                  mr: 1.5,
+                  fontWeight: 800,
+                  fontSize: '0.7rem',
+                  letterSpacing: '0.05em',
+                  bgcolor: isDark ? 'rgba(113,201,206,0.15)' : 'rgba(108,92,231,0.1)',
+                  color: isDark ? '#71C9CE' : '#6C5CE7',
+                  border: isDark ? '1px solid rgba(113,201,206,0.3)' : '1px solid rgba(108,92,231,0.2)',
                 }}
-              >
-                Role:
-              </Typography>
-              {['trainee', 'employer', 'provider', 'admin'].map((r) => {
-                const isActive = user?.role === r;
-                return (
-                  <Chip
-                    key={r}
-                    label={r.charAt(0).toUpperCase() + r.slice(1)}
-                    size="small"
-                    onClick={async () => {
-                      if (user?.role !== r) {
-                        try {
-                          await devLogin(r);
-                          navigate(ROLE_HOME[r]);
-                        } catch (err) {
-                          console.error(err);
-                        }
-                      }
-                    }}
-                    sx={{
-                      cursor: 'pointer',
-                      fontWeight: isActive ? 800 : 600,
-                      fontSize: '0.72rem',
-                      height: 26,
-                      bgcolor: isActive
-                        ? isDark ? '#71C9CE' : '#6C5CE7'
-                        : isDark ? 'rgba(255,255,255,0.05)' : '#F1F5F9',
-                      color: isActive
-                        ? isDark ? '#0B1315' : '#FFFFFF'
-                        : isDark ? '#8EA8AB' : '#475569',
-                      border: isActive
-                        ? `1px solid ${isDark ? '#71C9CE' : '#6C5CE7'}`
-                        : `1px solid ${isDark ? 'rgba(203,241,245,0.1)' : '#ECEEF4'}`,
-                      transition: 'all 0.15s ease',
-                      '&:hover': {
-                        bgcolor: isActive
-                          ? isDark ? '#5BB0B5' : '#5A4BC7'
-                          : isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0',
-                      },
-                    }}
-                  />
-                );
-              })}
-            </Box>
+              />
+            )}
 
             {/* ── Theme Mode Toggle Button ── */}
             <Tooltip title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'} arrow>

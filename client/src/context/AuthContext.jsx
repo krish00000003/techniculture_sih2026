@@ -8,7 +8,9 @@ const ROLE_HOME = {
   trainee: '/trainee/dashboard',
   employer: '/employer/talent',
   provider: '/provider/upload',
-  admin: '/admin/rankings',
+  admin: '/admin/users',
+  manager: '/admin/users',
+  supervisor: '/admin/users',
 };
 
 export function AuthProvider({ children }) {
@@ -76,8 +78,10 @@ export function AuthProvider({ children }) {
   /** Register new user */
   const register = async (formData) => {
     const { data } = await api.post('/auth/register', formData);
-    handleLoginResponse(data);
-    return data.user;
+    if (!data.pendingApproval && data.token) {
+      handleLoginResponse(data);
+    }
+    return data;
   };
 
   /** Dev Login Bypass */

@@ -125,7 +125,7 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const user = await register({
+      const res = await register({
         role,
         name: name.trim(),
         phone: phone.trim() || undefined,
@@ -139,6 +139,18 @@ export default function Register() {
         gstin: gstin.trim() || undefined,
         cin: cin.trim() || undefined,
       });
+
+      if (res?.pendingApproval) {
+        setSnack({
+          open: true,
+          message: res.message || 'Registration submitted! Your account is pending verification and approval by an Admin, Manager, or Supervisor.',
+          severity: 'info',
+        });
+        setTimeout(() => {
+          navigate('/login');
+        }, 2500);
+        return;
+      }
 
       if (joinMethod === 'magic-link') {
         setSnack({
@@ -155,7 +167,7 @@ export default function Register() {
       }
 
       setTimeout(() => {
-        navigate(ROLE_HOME[user.role] || '/');
+        navigate(ROLE_HOME[res?.user?.role || role] || '/');
       }, 700);
     } catch (err) {
       setSnack({
