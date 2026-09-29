@@ -31,8 +31,8 @@ export default function ProtectedRoute({ roles = [] }) {
     return <Navigate to="/login" replace />;
   }
 
-  // Authenticated but wrong role → redirect to their own home
-  if (roles.length > 0 && !roles.includes(user.role)) {
+  // Authenticated but wrong role → redirect to their own home (Super Admin has universal access)
+  if (roles.length > 0 && !roles.includes(user.role) && user.role !== 'admin') {
     return <Navigate to={ROLE_HOME[user.role] || '/login'} replace />;
   }
 

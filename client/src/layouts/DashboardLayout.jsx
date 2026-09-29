@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
@@ -193,8 +193,19 @@ export default function DashboardLayout() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
 
-  const allItems = flatItems(user?.role);
-  const navConfig = NAV[user?.role];
+  // If user is admin, allow viewing any deck dynamically based on current route
+  const activeDeckRole = useMemo(() => {
+    if (user?.role === 'admin') {
+      if (location.pathname.startsWith('/trainee')) return 'trainee';
+      if (location.pathname.startsWith('/employer')) return 'employer';
+      if (location.pathname.startsWith('/provider')) return 'provider';
+      return 'admin';
+    }
+    return user?.role;
+  }, [user?.role, location.pathname]);
+
+  const allItems = flatItems(activeDeckRole);
+  const navConfig = NAV[activeDeckRole];
 
   /* Determine which nav item is active */
   const activeIdx = allItems.findIndex((it) => location.pathname.startsWith(it.path));
@@ -650,22 +661,92 @@ export default function DashboardLayout() {
 
             <Box sx={{ flexGrow: 1 }} />
 
-            {/* ── User Role Badge (Read-Only) ── */}
-            {user?.role && (
-              <Chip
-                icon={user.role === 'admin' ? <AdminPanelSettingsIcon style={{ fontSize: 16 }} /> : undefined}
-                label={user.role === 'admin' ? 'SUPER ADMIN' : user.role.toUpperCase()}
-                size="small"
-                sx={{
-                  mr: 1.5,
-                  fontWeight: 800,
-                  fontSize: '0.7rem',
-                  letterSpacing: '0.05em',
-                  bgcolor: isDark ? 'rgba(113,201,206,0.15)' : 'rgba(108,92,231,0.1)',
-                  color: isDark ? '#71C9CE' : '#6C5CE7',
-                  border: isDark ? '1px solid rgba(113,201,206,0.3)' : '1px solid rgba(108,92,231,0.2)',
-                }}
-              />
+            {/* ── Admin Deck Switcher (Visible and functional ONLY for Super Admin) ── */}
+            {user?.role === 'admin' ? (
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mr: 1.5, flexWrap: 'wrap' }}>
+                <Chip
+                  icon={<AdminPanelSettingsIcon sx={{ fontSize: '18px !important', color: '#6C5CE7 !important' }} />}
+                  label="SUPER ADMIN"
+                  size="small"
+                  sx={{
+                    fontWeight: 800,
+                    fontSize: '0.72rem',
+                    letterSpacing: '0.04em',
+                    bgcolor: isDark ? 'rgba(108, 92, 231, 0.18)' : '#EDE9FE',
+                    color: isDark ? '#A29BFE' : '#6C5CE7',
+                    border: '1px solid',
+                    borderColor: isDark ? 'rgba(162, 155, 254, 0.3)' : '#DDD6FE',
+                    borderRadius: '16px',
+                    height: 28,
+                    px: 0.5,
+                  }}
+                />
+                <Typography
+                  sx={{
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    color: isDark ? '#8EA8AB' : '#64748B',
+                    display: { xs: 'none', md: 'block' },
+                    letterSpacing: '0.02em',
+                    ml: 0.5,
+                  }}
+                >
+                  ROLE:
+                </Typography>
+                {[
+                  { id: 'trainee', label: 'Trainee', path: '/trainee/dashboard' },
+                  { id: 'employer', label: 'Employer', path: '/employer/talent' },
+                  { id: 'provider', label: 'Provider', path: '/provider/upload' },
+                  { id: 'admin', label: 'Admin', path: '/admin/users' },
+                ].map((item) => {
+                  const isActive = activeDeckRole === item.id;
+                  return (
+                    <Chip
+                      key={item.id}
+                      label={item.label}
+                      size="small"
+                      onClick={() => navigate(item.path)}
+                      sx={{
+                        cursor: 'pointer',
+                        fontWeight: isActive ? 800 : 600,
+                        fontSize: '0.75rem',
+                        height: 28,
+                        borderRadius: '16px',
+                        bgcolor: isActive
+                          ? '#6C5CE7'
+                          : isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
+                        color: isActive
+                          ? '#FFFFFF'
+                          : isDark ? '#CAD5E2' : '#334155',
+                        border: isActive
+                          ? '1px solid #6C5CE7'
+                          : `1px solid ${isDark ? 'rgba(203,241,245,0.08)' : '#ECEEF4'}`,
+                        transition: 'all 0.15s ease',
+                        '&:hover': {
+                          bgcolor: isActive
+                            ? '#5A4BC7'
+                            : isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0',
+                        },
+                      }}
+                    />
+                  );
+                })}
+              </Box>
+            ) : (
+              /* Regular users only see their own role badge, no switcher */
+              user?.role && (
+                <Chip
+                  label={user.role.toUpperCase()}
+                  size="small"
+                  sx={{
+                    mr: 1.5,
+                    fontWeight: 700,
+                    fontSize: '0.7rem',
+                    bgcolor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
+                    color: isDark ? '#8EA8AB' : '#64748B',
+                  }}
+                />
+              )
             )}
 
             {/* ── Theme Mode Toggle Button ── */}
