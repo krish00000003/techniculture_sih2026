@@ -119,9 +119,9 @@ exports.verifyMagicLink = async (req, res) => {
     const { token } = req.params;
     const hashed = hashToken(token);
 
+    // Look for token that has not passed its expiration time
     const link = await MagicLink.findOne({
       token: hashed,
-      usedAt: null,
       expiresAt: { $gt: new Date() },
     });
 
@@ -129,9 +129,16 @@ exports.verifyMagicLink = async (req, res) => {
       return res.status(400).json({ message: 'Invalid or expired link' });
     }
 
-    // Mark as used (single-use)
-    link.usedAt = new Date();
-    await link.save();
+    // If the link was marked used more than 10 minutes ago, consider it fully spent
+    if (link.usedAt && Date.now() - new Date(link.usedAt).getTime() > 10 * 60 * 1000) {
+      return res.status(400).json({ message: 'This magic link has already been used' });
+    }
+
+    // Mark as used if not already marked
+    if (!link.usedAt) {
+      link.usedAt = new Date();
+      await link.save();
+    }
 
     const user = await User.findById(link.userId);
     if (!user) {
@@ -145,7 +152,9 @@ exports.verifyMagicLink = async (req, res) => {
         id: user._id,
         name: user.name,
         phone: user.phone,
+        email: user.email,
         role: user.role,
+        outcomeId: user.outcomeId,
       },
     });
   } catch (err) {

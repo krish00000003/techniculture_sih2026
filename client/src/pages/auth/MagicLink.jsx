@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import {
   Alert,
@@ -15,34 +15,52 @@ import { useAuth, ROLE_HOME } from '../../context/AuthContext';
 
 export default function MagicLinkVerify() {
   const { token } = useParams();
-  const { verifyMagicLink } = useAuth();
+  const { verifyMagicLink, user: currentUser } = useAuth();
   const navigate = useNavigate();
 
   const [status, setStatus] = useState('verifying'); // verifying | success | error
+  const [errorMessage, setErrorMessage] = useState('');
+  const calledRef = useRef(false);
 
   useEffect(() => {
-    let cancelled = false;
+    // If user is already logged in, redirect directly
+    if (currentUser) {
+      setStatus('success');
+      navigate(ROLE_HOME[currentUser.role] || '/', { replace: true });
+      return;
+    }
+
+    if (calledRef.current) return;
+    calledRef.current = true;
 
     async function verify() {
       try {
         const user = await verifyMagicLink(token);
-        if (!cancelled) {
-          setStatus('success');
-          // Auto-redirect after a short pause
-          setTimeout(() => {
-            navigate(ROLE_HOME[user.role] || '/', { replace: true });
-          }, 1500);
+        setStatus('success');
+        // Auto-redirect after a short pause
+        setTimeout(() => {
+          navigate(ROLE_HOME[user.role] || '/', { replace: true });
+        }, 1000);
+      } catch (err) {
+        // Check if token was already verified and stored
+        const storedUser = localStorage.getItem('user');
+        const storedToken = localStorage.getItem('token');
+        if (storedUser && storedToken) {
+          try {
+            const parsed = JSON.parse(storedUser);
+            setStatus('success');
+            navigate(ROLE_HOME[parsed.role] || '/', { replace: true });
+            return;
+          } catch (_) {}
         }
-      } catch {
-        if (!cancelled) setStatus('error');
+
+        setStatus('error');
+        setErrorMessage(err.response?.data?.message || 'Magic link is either expired or invalid.');
       }
     }
 
     verify();
-    return () => {
-      cancelled = true;
-    };
-  }, [token]);
+  }, [token, currentUser, navigate, verifyMagicLink]);
 
   return (
     <Card
