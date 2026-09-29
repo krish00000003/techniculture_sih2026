@@ -399,12 +399,6 @@ export default function Login() {
             Continue with Google
           </Button>
 
-          <Box sx={{ mt: 2.5, p: 1.5, borderRadius: '8px', bgcolor: 'rgba(113,201,206,0.08)', border: '1px solid rgba(113,201,206,0.25)', textAlign: 'center' }}>
-            <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-              Super Admin ID: <strong style={{ color: '#0984E3' }}>admin@sih.in</strong> | Password: <strong style={{ color: '#0984E3' }}>Admin@123</strong>
-            </Typography>
-          </Box>
-
           <Divider sx={{ my: 2.5 }} />
 
           {/* Switch to Register link */}
