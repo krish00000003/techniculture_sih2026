@@ -144,7 +144,7 @@ export default function Login() {
                 mb: 0.5,
               }}
             >
-              VocTrack
+              Trajectory
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Vocational Training Outcome Tracker

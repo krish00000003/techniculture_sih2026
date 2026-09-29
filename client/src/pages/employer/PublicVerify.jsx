@@ -122,7 +122,7 @@ export default function PublicVerify() {
           </Box>
           <Box>
             <Typography variant="h6" sx={{ fontWeight: 800, color: '#1E293B', fontSize: '1.05rem', lineHeight: 1.2 }}>
-              VocTrack Employer Verification Portal
+              Trajectory Employer Verification Portal
             </Typography>
             <Typography sx={{ fontSize: '0.78rem', color: '#64748B' }}>
               Ministry of Skill Development & Entrepreneurship • One-Tap Verification

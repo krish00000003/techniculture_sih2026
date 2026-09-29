@@ -204,7 +204,7 @@ export default function Register() {
                 mb: 0.5,
               }}
             >
-              VocTrack
+              Trajectory
             </Typography>
             <Typography variant="body2" color="text.secondary">
               Vocational Training Outcome Tracker

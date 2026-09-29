@@ -246,7 +246,7 @@ export default function DashboardLayout() {
                 flexShrink: 0,
               }}
             >
-              <Typography sx={{ fontWeight: 800, fontSize: 17, color: '#FFFFFF' }}>V</Typography>
+              <Typography sx={{ fontWeight: 800, fontSize: 17, color: '#FFFFFF' }}>T</Typography>
             </Box>
             <Box sx={{ overflow: 'hidden' }}>
               <Typography
@@ -259,7 +259,7 @@ export default function DashboardLayout() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                VocTrack
+                Trajectory
               </Typography>
               <Typography
                 sx={{
@@ -632,7 +632,7 @@ export default function DashboardLayout() {
                   boxShadow: '0 2px 8px rgba(108,92,231,0.25)',
                 }}
               >
-                <Typography sx={{ fontWeight: 800, fontSize: 16, color: '#FFFFFF' }}>V</Typography>
+                <Typography sx={{ fontWeight: 800, fontSize: 16, color: '#FFFFFF' }}>T</Typography>
               </Box>
               <Typography
                 variant="h6"
@@ -644,7 +644,7 @@ export default function DashboardLayout() {
                   display: { xs: 'none', sm: 'block' },
                 }}
               >
-                VocTrack
+                Trajectory
               </Typography>
             </Box>
 
