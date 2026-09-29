@@ -58,7 +58,7 @@ function SectionHeader({ children }) {
 /* ── Stat card ── */
 function StatCard({ label, value, icon, color = 'primary.main' }) {
   return (
-    <Card sx={{ flex: 1, minWidth: 140 }}>
+    <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
       <CardContent sx={{ py: 2.5, px: 3, '&:last-child': { pb: 2.5 } }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Box>
@@ -254,7 +254,7 @@ export default function PublicProfile() {
 
       {/* ── Stat cards ── */}
       <SectionHeader>Trainee Statistics</SectionHeader>
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
         <StatCard
           label="Completed"
           value={completedCourses.length}

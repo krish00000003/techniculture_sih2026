@@ -250,7 +250,7 @@ export default function CheckInSurveyModal({ open, onClose, milestone = 3, onSur
               {STATUS_OPTIONS.map((opt) => {
                 const isSelected = employmentStatus === opt.key;
                 return (
-                  <Grid item xs={12} key={opt.key}>
+                  <Grid size={{ xs: 12 }} key={opt.key}>
                     <Card
                       sx={{
                         borderRadius: '12px',
@@ -309,7 +309,7 @@ export default function CheckInSurveyModal({ open, onClose, milestone = 3, onSur
                   required
                 />
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       label="Monthly In-Hand Wage (₹)"
                       type="number"
@@ -320,7 +320,7 @@ export default function CheckInSurveyModal({ open, onClose, milestone = 3, onSur
                       required
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       label="Joining Date"
                       type="date"
@@ -363,7 +363,7 @@ export default function CheckInSurveyModal({ open, onClose, milestone = 3, onSur
                   size="small"
                 />
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       label="Avg Monthly Net Earnings (₹)"
                       type="number"
@@ -373,7 +373,7 @@ export default function CheckInSurveyModal({ open, onClose, milestone = 3, onSur
                       size="small"
                     />
                   </Grid>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <TextField
                       label="Days Worked Per Month"
                       type="number"

@@ -273,8 +273,8 @@ export default function TraineeJobs() {
 
       {/* ── Key Metrics Cards ── */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
             <CardContent sx={{ p: 2.25 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.04em' }}>
@@ -294,8 +294,8 @@ export default function TraineeJobs() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
             <CardContent sx={{ p: 2.25 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.04em' }}>
@@ -315,8 +315,8 @@ export default function TraineeJobs() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
             <CardContent sx={{ p: 2.25 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.04em' }}>
@@ -336,8 +336,8 @@ export default function TraineeJobs() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
+        <Grid size={{ xs: 12, sm: 6, md: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
             <CardContent sx={{ p: 2.25 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
                 <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748B', letterSpacing: '0.04em' }}>
@@ -430,12 +430,14 @@ export default function TraineeJobs() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               sx={{ minWidth: { xs: '100%', sm: 320 } }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                },
               }}
             />
 
@@ -476,8 +478,8 @@ export default function TraineeJobs() {
           {loading ? (
             <Grid container spacing={2.5}>
               {[1, 2, 3, 4].map((i) => (
-                <Grid item xs={12} md={6} key={i}>
-                  <Card sx={{ borderRadius: '14px', p: 3 }}>
+                <Grid size={{ xs: 12, md: 6 }} key={i}>
+                  <Card sx={{ height: '100%', borderRadius: '14px', p: 3 }}>
                     <Skeleton height={28} width="60%" />
                     <Skeleton height={20} width="40%" sx={{ my: 1 }} />
                     <Skeleton height={40} width="100%" />
@@ -511,7 +513,7 @@ export default function TraineeJobs() {
                 const isHired = job.interestStatus === 'hired';
 
                 return (
-                  <Grid item xs={12} md={6} key={job._id}>
+                  <Grid size={{ xs: 12, md: 6 }} key={job._id}>
                     <Card
                       sx={{
                         borderRadius: '16px',
@@ -624,8 +626,8 @@ export default function TraineeJobs() {
                             sx={{
                               p: 1.5,
                               borderRadius: '10px',
-                              bgcolor: '#F8F9FE',
-                              border: '1px solid #ECEEF4',
+                              bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#F8F9FE'),
+                              border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(203, 241, 245, 0.1)' : '1px solid #ECEEF4'),
                               mb: 2.5,
                               display: 'flex',
                               alignItems: 'center',
@@ -726,8 +728,8 @@ export default function TraineeJobs() {
 
           <Grid container spacing={2.5}>
             {data.companies.map((company) => (
-              <Grid item xs={12} md={6} key={company._id}>
-                <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3 }}>
+              <Grid size={{ xs: 12, md: 6 }} key={company._id}>
+                <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.75 }}>
                       <Avatar
@@ -779,12 +781,23 @@ export default function TraineeJobs() {
                   </Box>
 
                   {company.hiringLead && (
-                    <Box sx={{ p: 1.5, bgcolor: '#F8F9FE', borderRadius: '10px', mb: 2.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Box
+                      sx={{
+                        p: 1.5,
+                        bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#F8F9FE'),
+                        border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(203, 241, 245, 0.1)' : '1px solid #ECEEF4'),
+                        borderRadius: '10px',
+                        mb: 2.5,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                      }}
+                    >
                       <Box>
-                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: '#1E293B' }}>
+                        <Typography sx={{ fontSize: '0.8rem', fontWeight: 700, color: 'text.primary' }}>
                           Contact: {company.hiringLead.name}
                         </Typography>
-                        <Typography sx={{ fontSize: '0.72rem', color: '#64748B' }}>
+                        <Typography sx={{ fontSize: '0.72rem', color: 'text.secondary' }}>
                           {company.hiringLead.role}
                         </Typography>
                       </Box>
@@ -842,7 +855,7 @@ export default function TraineeJobs() {
 
           <Grid container spacing={2.5}>
             {data.hiringPersonnel.map((person) => (
-              <Grid item xs={12} sm={6} md={4} key={person.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={person.id}>
                 <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, height: '100%', display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 2 }}>
                     <Avatar
@@ -943,8 +956,8 @@ export default function TraineeJobs() {
           ) : (
             <Grid container spacing={2.5}>
               {interestedJobs.map((job) => (
-                <Grid item xs={12} md={6} key={job._id}>
-                  <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3 }}>
+                <Grid size={{ xs: 12, md: 6 }} key={job._id}>
+                  <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1.5 }}>
                       <Box>
                         <Typography sx={{ fontSize: '0.82rem', fontWeight: 700, color: '#64748B' }}>

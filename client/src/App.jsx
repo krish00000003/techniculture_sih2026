@@ -45,7 +45,7 @@ function RootRedirect() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Root redirect */}
         <Route index element={<RootRedirect />} />

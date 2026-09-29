@@ -42,22 +42,14 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useAuth, ROLE_HOME } from '../context/AuthContext';
+import { useColorMode } from '../context/ThemeContext';
 
 const DRAWER_WIDTH = 260;
 const RAIL_WIDTH = 72;
 
-/* Sidebar colours — crisp modern design matching Gmail / Material 3 */
-const SIDEBAR = {
-  bg: '#FFFFFF',
-  text: '#64748B',
-  textActive: '#6C5CE7',
-  activeBar: '#6C5CE7',
-  activeBg: '#F3F0FF',
-  sectionLabel: '#94A3B8',
-  hover: '#F8FAFC',
-  border: '1px solid #ECEEF4',
-};
 
 /* ── Navigation config per role (from PRD §3 & §5) ── */
 const NAV = {
@@ -140,8 +132,23 @@ function flatItems(role) {
 
 export default function DashboardLayout() {
   const theme = useTheme();
+  const { mode, toggleTheme } = useColorMode();
+  const isDark = mode === 'dark';
   const isMobile = useMediaQuery(theme.breakpoints.down('sm')); // < 600px
   const isDesktop = useMediaQuery(theme.breakpoints.up('lg')); // > 1024px
+
+  const SIDEBAR = {
+    bg: isDark ? '#111B1E' : '#FFFFFF',
+    text: isDark ? '#8EA8AB' : '#64748B',
+    textActive: isDark ? '#71C9CE' : '#6C5CE7',
+    activeBar: isDark ? '#71C9CE' : '#6C5CE7',
+    activeBg: isDark ? 'rgba(113, 201, 206, 0.14)' : '#F3F0FF',
+    sectionLabel: isDark ? '#5B787C' : '#94A3B8',
+    hover: isDark ? 'rgba(255, 255, 255, 0.05)' : '#F8FAFC',
+    border: isDark ? '1px solid rgba(203, 241, 245, 0.08)' : '1px solid #ECEEF4',
+    headerBorder: isDark ? '1px solid rgba(203, 241, 245, 0.08)' : '1px solid #F1F5F9',
+    divider: isDark ? 'rgba(203, 241, 245, 0.08)' : '#ECEEF4',
+  };
 
   const { user, logout, devLogin } = useAuth();
   const navigate = useNavigate();
@@ -186,7 +193,7 @@ export default function DashboardLayout() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #F1F5F9',
+            borderBottom: SIDEBAR.headerBorder,
           }}
         >
           <Box
@@ -213,7 +220,7 @@ export default function DashboardLayout() {
                 sx={{
                   fontWeight: 800,
                   fontSize: 15.5,
-                  color: '#1E293B',
+                  color: isDark ? '#E3FDFD' : '#1E293B',
                   lineHeight: 1.2,
                   letterSpacing: '-0.02em',
                   whiteSpace: 'nowrap',
@@ -274,7 +281,7 @@ export default function DashboardLayout() {
           px: railMode ? 1 : 1.5,
           pt: 1.5,
           '&::-webkit-scrollbar': { width: '4px' },
-          '&::-webkit-scrollbar-thumb': { bgcolor: '#E2E8F0', borderRadius: '4px' },
+          '&::-webkit-scrollbar-thumb': { bgcolor: isDark ? '#223538' : '#E2E8F0', borderRadius: '4px' },
         }}
       >
         {navConfig?.sections.map((section, sIdx) => (
@@ -299,7 +306,7 @@ export default function DashboardLayout() {
             )}
 
             {railMode && sIdx > 0 && (
-              <Divider sx={{ my: 1.2, mx: 1, borderColor: '#ECEEF4' }} />
+              <Divider sx={{ my: 1.2, mx: 1, borderColor: SIDEBAR.divider }} />
             )}
 
             <List disablePadding>
@@ -329,7 +336,7 @@ export default function DashboardLayout() {
                           transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
                           '&:hover': {
                             bgcolor: isActive ? SIDEBAR.activeBg : SIDEBAR.hover,
-                            color: isActive ? SIDEBAR.textActive : '#1E293B',
+                            color: isActive ? SIDEBAR.textActive : (isDark ? '#E3FDFD' : '#1E293B'),
                             transform: 'scale(1.05)',
                           },
                         }}
@@ -367,7 +374,7 @@ export default function DashboardLayout() {
                       transition: 'all 0.18s cubic-bezier(0.4, 0, 0.2, 1)',
                       '&:hover': {
                         bgcolor: isActive ? SIDEBAR.activeBg : SIDEBAR.hover,
-                        color: isActive ? SIDEBAR.textActive : '#1E293B',
+                        color: isActive ? SIDEBAR.textActive : (isDark ? '#E3FDFD' : '#1E293B'),
                       },
                     }}
                   >
@@ -403,7 +410,7 @@ export default function DashboardLayout() {
       <Box
         sx={{
           p: railMode ? 1.5 : 2,
-          borderTop: '1px solid #ECEEF4',
+          borderTop: SIDEBAR.border,
           display: 'flex',
           alignItems: 'center',
           justifyContent: railMode ? 'center' : 'flex-start',
@@ -449,7 +456,7 @@ export default function DashboardLayout() {
                 sx={{
                   fontSize: 13,
                   fontWeight: 700,
-                  color: '#1E293B',
+                  color: isDark ? '#E3FDFD' : '#1E293B',
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
                   whiteSpace: 'nowrap',
@@ -479,7 +486,7 @@ export default function DashboardLayout() {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: '#F8F9FE' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', bgcolor: isDark ? '#0B1315' : '#F8F9FE' }}>
       {/* ── Desktop Permanent Gmail Drawer / Rail with smooth transition ── */}
       {isDesktop && (
         <Drawer
@@ -534,9 +541,9 @@ export default function DashboardLayout() {
           position="sticky"
           elevation={0}
           sx={{
-            bgcolor: '#FFFFFF',
+            bgcolor: isDark ? '#111B1E' : '#FFFFFF',
             color: 'text.primary',
-            borderBottom: '1px solid #ECEEF4',
+            borderBottom: isDark ? '1px solid rgba(203, 241, 245, 0.08)' : '1px solid #ECEEF4',
             zIndex: theme.zIndex.drawer + 1,
           }}
         >
@@ -554,13 +561,13 @@ export default function DashboardLayout() {
                 }}
                 sx={{
                   mr: 1.5,
-                  color: '#64748B',
+                  color: isDark ? '#8EA8AB' : '#64748B',
                   width: 42,
                   height: 42,
                   borderRadius: '50%',
                   '&:hover': {
-                    bgcolor: '#F1F5F9',
-                    color: '#1E293B',
+                    bgcolor: isDark ? 'rgba(255,255,255,0.06)' : '#F1F5F9',
+                    color: isDark ? '#E3FDFD' : '#1E293B',
                   },
                 }}
                 aria-label="Toggle navigation drawer"
@@ -598,7 +605,7 @@ export default function DashboardLayout() {
                 variant="h6"
                 sx={{
                   fontWeight: 800,
-                  color: '#1E293B',
+                  color: isDark ? '#E3FDFD' : '#1E293B',
                   fontSize: '1.1rem',
                   letterSpacing: '-0.02em',
                   display: { xs: 'none', sm: 'block' },
@@ -611,12 +618,12 @@ export default function DashboardLayout() {
             <Box sx={{ flexGrow: 1 }} />
 
             {/* ── Demo Role Switcher Chips ── */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mr: 2, flexWrap: 'wrap' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mr: 1.5, flexWrap: 'wrap' }}>
               <Typography
                 sx={{
                   fontSize: '0.72rem',
                   fontWeight: 700,
-                  color: '#94A3B8',
+                  color: isDark ? '#5B787C' : '#94A3B8',
                   display: { xs: 'none', md: 'block' },
                   textTransform: 'uppercase',
                   letterSpacing: '0.04em',
@@ -646,18 +653,49 @@ export default function DashboardLayout() {
                       fontWeight: isActive ? 800 : 600,
                       fontSize: '0.72rem',
                       height: 26,
-                      bgcolor: isActive ? '#6C5CE7' : '#F1F5F9',
-                      color: isActive ? '#FFFFFF' : '#475569',
-                      border: isActive ? '1px solid #6C5CE7' : '1px solid #ECEEF4',
+                      bgcolor: isActive
+                        ? isDark ? '#71C9CE' : '#6C5CE7'
+                        : isDark ? 'rgba(255,255,255,0.05)' : '#F1F5F9',
+                      color: isActive
+                        ? isDark ? '#0B1315' : '#FFFFFF'
+                        : isDark ? '#8EA8AB' : '#475569',
+                      border: isActive
+                        ? `1px solid ${isDark ? '#71C9CE' : '#6C5CE7'}`
+                        : `1px solid ${isDark ? 'rgba(203,241,245,0.1)' : '#ECEEF4'}`,
                       transition: 'all 0.15s ease',
                       '&:hover': {
-                        bgcolor: isActive ? '#5A4BC7' : '#E2E8F0',
+                        bgcolor: isActive
+                          ? isDark ? '#5BB0B5' : '#5A4BC7'
+                          : isDark ? 'rgba(255,255,255,0.1)' : '#E2E8F0',
                       },
                     }}
                   />
                 );
               })}
             </Box>
+
+            {/* ── Theme Mode Toggle Button ── */}
+            <Tooltip title={isDark ? 'Switch to Light mode' : 'Switch to Dark mode'} arrow>
+              <IconButton
+                onClick={toggleTheme}
+                size="small"
+                sx={{
+                  color: isDark ? '#71C9CE' : '#5A7A7D',
+                  bgcolor: isDark ? 'rgba(113, 201, 206, 0.12)' : '#F1F5F9',
+                  p: 0.9,
+                  mr: 1,
+                  borderRadius: '10px',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    bgcolor: isDark ? 'rgba(113, 201, 206, 0.22)' : '#E2E8F0',
+                    transform: 'rotate(20deg)',
+                  },
+                }}
+                aria-label="Toggle light and dark mode"
+              >
+                {isDark ? <LightModeIcon fontSize="small" /> : <DarkModeIcon fontSize="small" />}
+              </IconButton>
+            </Tooltip>
 
             {/* Profile Avatar & Menu */}
             <IconButton onClick={(e) => setAnchorEl(e.currentTarget)} sx={{ p: 0.5 }}>
@@ -677,23 +715,27 @@ export default function DashboardLayout() {
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
               onClose={() => setAnchorEl(null)}
-              PaperProps={{
-                sx: {
-                  borderRadius: '12px',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                  minWidth: 160,
+              slotProps={{
+                paper: {
+                  sx: {
+                    borderRadius: '12px',
+                    boxShadow: isDark ? '0 8px 24px rgba(0,0,0,0.5)' : '0 8px 24px rgba(0,0,0,0.08)',
+                    bgcolor: isDark ? '#142023' : '#FFFFFF',
+                    border: isDark ? '1px solid rgba(203,241,245,0.1)' : 'none',
+                    minWidth: 160,
+                  },
                 },
               }}
             >
               <MenuItem disabled>
-                <Typography variant="body2" sx={{ fontWeight: 600, color: '#1E293B' }}>{user?.name}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 600, color: isDark ? '#E3FDFD' : '#1E293B' }}>{user?.name}</Typography>
               </MenuItem>
               <MenuItem disabled>
-                <Typography variant="caption" sx={{ color: '#64748B', textTransform: 'capitalize' }}>
+                <Typography variant="caption" sx={{ color: isDark ? '#8EA8AB' : '#64748B', textTransform: 'capitalize' }}>
                   {user?.role}
                 </Typography>
               </MenuItem>
-              <Divider sx={{ my: 0.5 }} />
+              <Divider sx={{ my: 0.5, borderColor: isDark ? 'rgba(203,241,245,0.08)' : undefined }} />
               <MenuItem
                 onClick={() => {
                   setAnchorEl(null);
@@ -733,10 +775,10 @@ export default function DashboardLayout() {
               bottom: 0,
               left: 0,
               right: 0,
-              bgcolor: '#FFFFFF',
-              borderTop: '1px solid rgba(31,45,46,0.06)',
+              bgcolor: isDark ? '#111B1E' : '#FFFFFF',
+              borderTop: isDark ? '1px solid rgba(203,241,245,0.08)' : '1px solid rgba(31,45,46,0.06)',
               zIndex: theme.zIndex.appBar,
-              '& .Mui-selected': { color: '#6C5CE7' },
+              '& .Mui-selected': { color: isDark ? '#71C9CE' : '#6C5CE7' },
             }}
           >
             {allItems.map((item) => (

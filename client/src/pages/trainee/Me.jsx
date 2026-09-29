@@ -170,7 +170,7 @@ export default function TraineeMe() {
         <Skeleton variant="rounded" height={160} sx={{ mb: 3 }} />
         <Grid container spacing={2}>
           {[1, 2, 3, 4].map((i) => (
-            <Grid item xs={12} sm={3} key={i}>
+            <Grid size={{ xs: 12, sm: 3 }} key={i}>
               <Skeleton variant="rounded" height={100} />
             </Grid>
           ))}
@@ -194,11 +194,15 @@ export default function TraineeMe() {
       <Card
         sx={{
           borderRadius: '18px',
-          border: '1px solid #ECEEF4',
+          border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(203, 241, 245, 0.1)' : '1px solid #ECEEF4'),
           p: { xs: 2.5, sm: 3.5 },
           mb: 3,
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FE 100%)',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.03)',
+          background: (theme) =>
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(135deg, #142023 0%, #18282B 100%)'
+              : 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FE 100%)',
+          boxShadow: (theme) =>
+            theme.palette.mode === 'dark' ? '0 4px 20px rgba(0,0,0,0.3)' : '0 4px 20px rgba(0,0,0,0.03)',
         }}
       >
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { sm: 'center' }, justifyContent: 'space-between', gap: 2 }}>
@@ -292,8 +296,8 @@ export default function TraineeMe() {
 
       {/* ── Key Overview Stats ── */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={6} sm={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B' }}>
                 ACTIVE COURSES
@@ -309,8 +313,8 @@ export default function TraineeMe() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B' }}>
                 CERTIFICATIONS
@@ -326,8 +330,8 @@ export default function TraineeMe() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B' }}>
                 AVG ASSESSMENT
@@ -343,8 +347,8 @@ export default function TraineeMe() {
           </Card>
         </Grid>
 
-        <Grid item xs={6} sm={3}>
-          <Card sx={{ borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
+        <Grid size={{ xs: 6, sm: 3 }}>
+          <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', p: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
               <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748B' }}>
                 REWARDS EARNED
@@ -396,7 +400,7 @@ export default function TraineeMe() {
           ═══════════════════════════════════════════════ */}
       {currentTab === 0 && (
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, height: '100%' }}>
               <Typography variant="h6" sx={{ fontWeight: 800, color: '#1E293B', mb: 2 }}>
                 Basic Demographics & Status
@@ -454,7 +458,7 @@ export default function TraineeMe() {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, height: '100%' }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                 <ContactPhoneIcon sx={{ color: '#6C5CE7' }} />
@@ -466,18 +470,26 @@ export default function TraineeMe() {
                 Used only if your phone number changes during post-training milestone check-ins (3m, 6m, 12m).
               </Typography>
 
-              <Box sx={{ p: 2, bgcolor: '#F8F9FE', borderRadius: '12px', border: '1px solid #ECEEF4', mb: 2 }}>
-                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
+              <Box
+                sx={{
+                  p: 2,
+                  bgcolor: (theme) => (theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.03)' : '#F8F9FE'),
+                  borderRadius: '12px',
+                  border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(203, 241, 245, 0.1)' : '1px solid #ECEEF4'),
+                  mb: 2,
+                }}
+              >
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase' }}>
                   Contact Name
                 </Typography>
-                <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#1E293B', mb: 1.5 }}>
+                <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: 'text.primary', mb: 1.5 }}>
                   {profile.backupContact?.name || 'Not provided'}
                 </Typography>
 
-                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
+                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: 'text.secondary', textTransform: 'uppercase' }}>
                   Phone Number
                 </Typography>
-                <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: '#1E293B' }}>
+                <Typography sx={{ fontSize: '0.95rem', fontWeight: 700, color: 'text.primary' }}>
                   {profile.backupContact?.phone || 'Not provided'}
                 </Typography>
               </Box>
@@ -509,8 +521,8 @@ export default function TraineeMe() {
 
           <Grid container spacing={2.5}>
             {courses.ongoing.map((course) => (
-              <Grid item xs={12} md={6} key={course._id}>
-                <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3 }}>
+              <Grid size={{ xs: 12, md: 6 }} key={course._id}>
+                <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                     <Box>
                       <Chip label={course.sector} size="small" sx={{ bgcolor: '#F3F0FF', color: '#6C5CE7', fontWeight: 700, mb: 1 }} />
@@ -524,7 +536,7 @@ export default function TraineeMe() {
                     <Chip label="Pursuing" color="primary" size="small" sx={{ fontWeight: 700 }} />
                   </Box>
 
-                  <Box sx={{ mt: 2 }}>
+                  <Box sx={{ mt: 'auto', pt: 2 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
                       <Typography sx={{ fontSize: '0.78rem', color: '#64748B', fontWeight: 600 }}>
                         Cohort Attendance
@@ -544,8 +556,8 @@ export default function TraineeMe() {
             ))}
 
             {courses.completed.map((course) => (
-              <Grid item xs={12} md={6} key={course._id}>
-                <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, bgcolor: '#FAFDFA' }}>
+              <Grid size={{ xs: 12, md: 6 }} key={course._id}>
+                <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, display: 'flex', flexDirection: 'column' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', mb: 1 }}>
                     <Box>
                       <Chip label={course.sector} size="small" sx={{ bgcolor: '#ECFDF5', color: '#059669', fontWeight: 700, mb: 1 }} />
@@ -664,7 +676,7 @@ export default function TraineeMe() {
       {currentTab === 3 && (
         <Box>
           <Grid container spacing={3} sx={{ mb: 3 }}>
-            <Grid item xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, height: '100%' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                   <AccountBalanceWalletIcon sx={{ color: '#F59E0B' }} />
@@ -698,7 +710,7 @@ export default function TraineeMe() {
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={7}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, height: '100%' }}>
                 <Typography variant="h6" sx={{ fontWeight: 800, color: '#1E293B', mb: 0.5 }}>
                   Rewards Ledger & History

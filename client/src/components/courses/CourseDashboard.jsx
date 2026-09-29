@@ -849,9 +849,12 @@ export default function CourseDashboard({ role = 'employer' }) {
             sx={{
               mb: 3.5,
               borderRadius: '16px',
-              border: '1px solid #ECEEF4',
-              boxShadow: '0 2px 12px rgba(100, 110, 140, 0.04)',
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FE 100%)',
+              border: (theme) => (theme.palette.mode === 'dark' ? '1px solid rgba(203, 241, 245, 0.1)' : '1px solid #ECEEF4'),
+              boxShadow: (theme) => (theme.palette.mode === 'dark' ? '0 4px 16px rgba(0,0,0,0.3)' : '0 2px 12px rgba(100, 110, 140, 0.04)'),
+              background: (theme) =>
+                theme.palette.mode === 'dark'
+                  ? 'linear-gradient(135deg, #142023 0%, #18282B 100%)'
+                  : 'linear-gradient(135deg, #FFFFFF 0%, #F8F9FE 100%)',
             }}
           >
             <CardContent sx={{ p: 3, '&:last-child': { pb: 3 } }}>

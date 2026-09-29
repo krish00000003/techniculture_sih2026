@@ -152,8 +152,8 @@ export default function TraineeRewards() {
             }}
           />
 
-          <Grid container spacing={3} alignItems="center">
-            <Grid item xs={12} md={7}>
+          <Grid container spacing={3} sx={{ alignItems: 'center' }}>
+            <Grid size={{ xs: 12, md: 7 }}>
               <Typography variant="h4" sx={{ fontWeight: 800, fontSize: { xs: '1.6rem', sm: '2rem' }, mb: 1 }}>
                 Rewards & Micropayments Wallet 🎁
               </Typography>
@@ -162,7 +162,7 @@ export default function TraineeRewards() {
               </Typography>
             </Grid>
 
-            <Grid item xs={12} md={5}>
+            <Grid size={{ xs: 12, md: 5 }}>
               <Box
                 sx={{
                   bgcolor: 'rgba(255, 255, 255, 0.18)',
@@ -208,7 +208,7 @@ export default function TraineeRewards() {
 
       <Grid container spacing={3}>
         {/* ── Left Column: Payout Method Setup ── */}
-        <Grid item xs={12} md={5}>
+        <Grid size={{ xs: 12, md: 5 }}>
           <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, mb: 3 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25, mb: 1 }}>
               <AccountBalanceWalletIcon sx={{ color: '#059669' }} />
@@ -283,7 +283,7 @@ export default function TraineeRewards() {
         </Grid>
 
         {/* ── Right Column: Milestone Surveys Timeline ── */}
-        <Grid item xs={12} md={7}>
+        <Grid size={{ xs: 12, md: 7 }}>
           <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', p: 3, mb: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>

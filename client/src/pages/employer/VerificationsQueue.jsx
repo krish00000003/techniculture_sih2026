@@ -106,12 +106,14 @@ export default function EmployerVerificationsQueue() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             fullWidth
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
         </CardContent>

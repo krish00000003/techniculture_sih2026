@@ -281,7 +281,7 @@ export default function SkillGaps() {
       {/* ── Main Dashboard Row: Bar Chart & Donut Chart ── */}
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', lg: '2fr 1fr' }, gap: 3, mb: 3 }}>
         {/* Left: Bar Chart with Metric Tabs */}
-        <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', boxShadow: '0 2px 12px rgba(100,110,140,0.04)' }}>
+        <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', boxShadow: '0 2px 12px rgba(100,110,140,0.04)' }}>
           <CardContent sx={{ p: 0, '&:last-child': { pb: 3 } }}>
             {/* Metric Tab Header */}
             <Box sx={{ display: 'flex', borderBottom: '1px solid #ECEEF4', px: 2, pt: 1, flexWrap: 'wrap' }}>
@@ -376,7 +376,7 @@ export default function SkillGaps() {
         </Card>
 
         {/* Right: Donut Chart */}
-        <Card sx={{ borderRadius: '16px', border: '1px solid #ECEEF4', boxShadow: '0 2px 12px rgba(100,110,140,0.04)', display: 'flex', flexDirection: 'column' }}>
+        <Card sx={{ height: '100%', borderRadius: '16px', border: '1px solid #ECEEF4', boxShadow: '0 2px 12px rgba(100,110,140,0.04)', display: 'flex', flexDirection: 'column' }}>
           <CardContent sx={{ p: 3, flex: 1, display: 'flex', flexDirection: 'column', '&:last-child': { pb: 3 } }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
               <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#1E293B' }}>
@@ -547,10 +547,9 @@ export default function SkillGaps() {
                       hover
                       sx={{
                         transition: 'background-color 0.15s ease',
-                        '&:hover': { bgcolor: '#F8F9FE' },
                       }}
                     >
-                      <TableCell sx={{ fontWeight: 600, color: '#1E293B' }}>{g.skill}</TableCell>
+                      <TableCell sx={{ fontWeight: 600, color: 'text.primary' }}>{g.skill}</TableCell>
                       <TableCell sx={{ color: '#64748B', fontSize: '0.85rem' }}>{g.sector}</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 600, color: '#6C5CE7' }}>{g.taught}</TableCell>
                       <TableCell align="right" sx={{ fontWeight: 600, color: '#00CEC9' }}>{g.demanded}</TableCell>

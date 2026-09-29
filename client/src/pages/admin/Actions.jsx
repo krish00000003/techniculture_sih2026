@@ -27,7 +27,7 @@ const typeLabels = {
 
 function StatCard({ title, value, color, loading }) {
   return (
-    <Card sx={{ flex: 1, minWidth: 140 }}>
+    <Card sx={{ height: '100%', borderRadius: '14px', border: '1px solid #ECEEF4', boxShadow: 'none' }}>
       <CardContent sx={{ textAlign: 'center', py: 2.5 }}>
         {loading ? (
           <Skeleton variant="rectangular" height={48} sx={{ borderRadius: 1 }} />
@@ -88,7 +88,7 @@ export default function Actions() {
       </Box>
 
       {/* Summary cards */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr 1fr', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
         <StatCard title="Total Alerts" value={counts.total} color="text.primary" loading={loading} />
         <StatCard title="Critical" value={counts.critical} color="#C62828" loading={loading} />
         <StatCard title="Pending" value={counts.pending} color="#E65100" loading={loading} />

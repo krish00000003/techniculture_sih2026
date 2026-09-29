@@ -177,7 +177,7 @@ export default function PublicVerify() {
               {/* Claim Summary Card */}
               <Box sx={{ p: 2.5, borderRadius: '14px', bgcolor: '#F8F9FE', border: '1px solid #ECEEF4', mb: 3 }}>
                 <Grid container spacing={2}>
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                       CANDIDATE
                     </Typography>
@@ -186,7 +186,7 @@ export default function PublicVerify() {
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                       REPORTED ROLE
                     </Typography>
@@ -195,7 +195,7 @@ export default function PublicVerify() {
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                       CLAIMED WAGE
                     </Typography>
@@ -204,7 +204,7 @@ export default function PublicVerify() {
                     </Typography>
                   </Grid>
 
-                  <Grid item xs={6}>
+                  <Grid size={{ xs: 6 }}>
                     <Typography sx={{ fontSize: '0.72rem', fontWeight: 700, color: '#94A3B8', textTransform: 'uppercase' }}>
                       START DATE
                     </Typography>

@@ -148,10 +148,10 @@ function TraineeStatWidget({ label, value, subtext, icon, color = '#6C5CE7', bg 
   return (
     <Card
       sx={{
-        flex: 1,
-        minWidth: { xs: '100%', sm: 200 },
-        bgcolor: '#FFFFFF',
-        border: '1px solid #ECEEF4',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
         borderRadius: '16px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.02)',
         transition: 'transform 0.2s, box-shadow 0.2s',
@@ -444,7 +444,7 @@ export default function TraineeDashboard() {
       </Card>
 
       {/* ── Stat Widgets Row ── */}
-      <Box sx={{ display: 'flex', gap: 2.5, mb: 4, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 2.5, mb: 4 }}>
         <TraineeStatWidget
           label="Available Courses"
           value={courses.length}
@@ -542,12 +542,14 @@ export default function TraineeDashboard() {
               placeholder="Search courses, skills, providers..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
-                  </InputAdornment>
-                ),
+              slotProps={{
+                input: {
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: '#94A3B8', fontSize: 20 }} />
+                    </InputAdornment>
+                  ),
+                },
               }}
               sx={{
                 width: { xs: '100%', sm: 260 },
@@ -651,11 +653,11 @@ export default function TraineeDashboard() {
                 key={course._id}
                 sx={{
                   borderRadius: '18px',
-                  bgcolor: '#FFFFFF',
-                  border: isPursuing ? '2px solid #6C5CE7' : '1px solid #ECEEF4',
-                  boxShadow: isPursuing ? '0 6px 20px rgba(108,92,231,0.12)' : '0 2px 10px rgba(0,0,0,0.02)',
+                  height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
+                  border: isPursuing ? '2px solid #6C5CE7' : undefined,
+                  boxShadow: isPursuing ? '0 6px 20px rgba(108,92,231,0.12)' : '0 2px 10px rgba(0,0,0,0.02)',
                   transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
                   position: 'relative',
                   overflow: 'hidden',
@@ -729,13 +731,14 @@ export default function TraineeDashboard() {
                     </Box>
                   </Box>
 
-                  {/* Course Title */}
+                  {/* Course Title with uniform height */}
                   <Typography
                     sx={{
                       fontSize: '1.08rem',
                       fontWeight: 800,
-                      color: '#1E293B',
+                      color: 'text.primary',
                       lineHeight: 1.3,
+                      minHeight: '2.8rem',
                       mb: 0.75,
                       display: '-webkit-box',
                       WebkitLineClamp: 2,
@@ -753,15 +756,15 @@ export default function TraineeDashboard() {
                   </Typography>
 
                   {/* Provider & Location */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 2, color: '#64748B', fontSize: '0.8rem' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mb: 1.5, color: '#64748B', fontSize: '0.8rem' }}>
                     <VerifiedIcon sx={{ fontSize: 15, color: '#6C5CE7', flexShrink: 0 }} />
-                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <Typography sx={{ fontSize: '0.8rem', fontWeight: 600, color: 'text.secondary', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {course.providerName}
                     </Typography>
                     {course.providerDistrict && (
                       <>
                         <Typography sx={{ color: '#CBD5E1' }}>•</Typography>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: '#64748B', flexShrink: 0 }}>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, color: 'text.secondary', flexShrink: 0 }}>
                           <LocationOnIcon sx={{ fontSize: 14, color: '#94A3B8' }} />
                           <span>{course.providerDistrict}</span>
                         </Box>
@@ -769,47 +772,51 @@ export default function TraineeDashboard() {
                     )}
                   </Box>
 
-                  {/* Skills Tag Pills */}
-                  {course.skills && course.skills.length > 0 && (
-                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2.5 }}>
-                      {course.skills.slice(0, 3).map((skill, sIdx) => (
-                        <Chip
-                          key={sIdx}
-                          label={skill}
-                          size="small"
-                          sx={{
-                            bgcolor: '#F8FAFC',
-                            color: '#475569',
-                            fontSize: '0.72rem',
-                            fontWeight: 600,
-                            borderRadius: '6px',
-                            border: '1px solid #ECEEF4',
-                          }}
-                        />
-                      ))}
-                      {course.skills.length > 3 && (
-                        <Chip
-                          label={`+${course.skills.length - 3}`}
-                          size="small"
-                          sx={{
-                            bgcolor: '#F1F5F9',
-                            color: '#64748B',
-                            fontSize: '0.72rem',
-                            fontWeight: 700,
-                            borderRadius: '6px',
-                          }}
-                        />
-                      )}
-                    </Box>
-                  )}
+                  {/* Skills Tag Pills with fixed min-height for row alignment */}
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mb: 2, minHeight: 28, alignItems: 'center' }}>
+                    {course.skills && course.skills.length > 0 ? (
+                      <>
+                        {course.skills.slice(0, 3).map((skill, sIdx) => (
+                          <Chip
+                            key={sIdx}
+                            label={skill}
+                            size="small"
+                            sx={{
+                              bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(255,255,255,0.06)' : '#F8FAFC',
+                              color: 'text.secondary',
+                              fontSize: '0.72rem',
+                              fontWeight: 600,
+                              borderRadius: '6px',
+                              border: (t) => t.palette.mode === 'dark' ? '1px solid rgba(203,241,245,0.1)' : '1px solid #ECEEF4',
+                            }}
+                          />
+                        ))}
+                        {course.skills.length > 3 && (
+                          <Chip
+                            label={`+${course.skills.length - 3}`}
+                            size="small"
+                            sx={{
+                              bgcolor: (t) => t.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : '#F1F5F9',
+                              color: 'text.secondary',
+                              fontSize: '0.72rem',
+                              fontWeight: 700,
+                              borderRadius: '6px',
+                            }}
+                          />
+                        )}
+                      </>
+                    ) : (
+                      <Box sx={{ height: 24 }} />
+                    )}
+                  </Box>
 
                   {/* Dribbble Style Mini Chart / Metric Widget */}
                   <Box
                     sx={{
                       p: 1.5,
                       borderRadius: '12px',
-                      bgcolor: '#F8FAFC',
-                      border: '1px solid #ECEEF4',
+                      bgcolor: (t) => (t.palette.mode === 'dark' ? 'rgba(255,255,255,0.03)' : '#F8FAFC'),
+                      border: (t) => (t.palette.mode === 'dark' ? '1px solid rgba(203,241,245,0.1)' : '1px solid #ECEEF4'),
                       mb: 2.5,
                     }}
                   >
@@ -973,11 +980,13 @@ export default function TraineeDashboard() {
         onClose={() => setDialogOpen(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: '20px',
-            p: 1,
-            boxShadow: '0 24px 60px rgba(0,0,0,0.12)',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: '20px',
+              p: 1,
+              boxShadow: '0 24px 60px rgba(0,0,0,0.12)',
+            },
           },
         }}
       >
