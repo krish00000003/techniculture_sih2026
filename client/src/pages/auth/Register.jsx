@@ -398,7 +398,7 @@ export default function Register() {
 
           {/* Switch to Login Link */}
           <Box sx={{ textAlign: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
+            <Typography variant="body2" color="text.secondary" component="div">
               Already have an account?{' '}
               <Typography
                 component={RouterLink}

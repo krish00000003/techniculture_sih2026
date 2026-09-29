@@ -61,7 +61,7 @@ function ProfileCard({ trainee }) {
         <Typography variant="body2">
           <strong>District:</strong> {trainee?.district || '—'}
         </Typography>
-        <Typography variant="body2">
+        <Typography variant="body2" component="div" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mt: 0.5 }}>
           <strong>Status:</strong>{' '}
           <Chip
             label={trainee?.employmentStatus || 'unknown'}
