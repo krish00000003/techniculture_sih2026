@@ -9,6 +9,8 @@ import {
   CircularProgress,
   Divider,
   FormControl,
+  IconButton,
+  InputAdornment,
   InputLabel,
   MenuItem,
   Select,
@@ -17,7 +19,6 @@ import {
   Tabs,
   TextField,
   Typography,
-  Chip,
 } from '@mui/material';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
@@ -27,19 +28,28 @@ import SchoolIcon from '@mui/icons-material/School';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import BadgeIcon from '@mui/icons-material/Badge';
 import LanguageIcon from '@mui/icons-material/Language';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Visibility from '@mui/icons-material/Visibility';
+import VisibilityOff from '@mui/icons-material/VisibilityOff';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import SmsIcon from '@mui/icons-material/Sms';
 import { useAuth, ROLE_HOME } from '../../context/AuthContext';
 
 const DISTRICT_LIST = [
+  'Kamrup',
+  'Jorhat',
+  'Dibrugarh',
+  'Silchar',
+  'Nagaon',
+  'Tezpur',
   'Mumbai',
   'Delhi',
   'Bangalore',
   'Hyderabad',
-  'Chennai',
   'Kolkata',
   'Pune',
-  'Ahmedabad',
-  'Jaipur',
-  'Lucknow',
   'Other',
 ];
 
@@ -48,6 +58,7 @@ export default function Register() {
   const navigate = useNavigate();
 
   const [role, setRole] = useState('trainee'); // 'trainee' | 'employer' | 'provider'
+  const [joinMethod, setJoinMethod] = useState('password'); // 'password' | 'magic-link'
   const [loading, setLoading] = useState(false);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
@@ -55,8 +66,15 @@ export default function Register() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [channel, setChannel] = useState('whatsapp');
+
+  // Role-specific states
   const [companyName, setCompanyName] = useState('');
-  const [district, setDistrict] = useState('Mumbai');
+  const [district, setDistrict] = useState('Kamrup');
   const [language, setLanguage] = useState('en');
   const [gstin, setGstin] = useState('');
   const [cin, setCin] = useState('');
@@ -69,9 +87,30 @@ export default function Register() {
       return;
     }
 
-    if (role === 'trainee' && !phone.trim()) {
-      setSnack({ open: true, message: 'Phone number is required for Trainee account', severity: 'warning' });
-      return;
+    // Validation based on join method
+    if (joinMethod === 'password') {
+      if (!password) {
+        setSnack({ open: true, message: 'Please set a password', severity: 'warning' });
+        return;
+      }
+      if (password.length < 6) {
+        setSnack({ open: true, message: 'Password must be at least 6 characters long', severity: 'warning' });
+        return;
+      }
+      if (password !== confirmPassword) {
+        setSnack({ open: true, message: 'Passwords do not match', severity: 'warning' });
+        return;
+      }
+      if (role === 'trainee' && !phone.trim() && !email.trim()) {
+        setSnack({ open: true, message: 'Please provide either a phone number or email', severity: 'warning' });
+        return;
+      }
+    } else {
+      // Magic link requires phone
+      if (!phone.trim()) {
+        setSnack({ open: true, message: 'Phone number is required for Magic Link access', severity: 'warning' });
+        return;
+      }
     }
 
     if (role === 'employer' && !companyName.trim()) {
@@ -79,8 +118,8 @@ export default function Register() {
       return;
     }
 
-    if ((role === 'employer' || role === 'provider') && !email.trim() && !phone.trim()) {
-      setSnack({ open: true, message: 'Please provide either an email or phone number', severity: 'warning' });
+    if (role === 'provider' && !companyName.trim()) {
+      setSnack({ open: true, message: 'Institute name is required', severity: 'warning' });
       return;
     }
 
@@ -91,6 +130,9 @@ export default function Register() {
         name: name.trim(),
         phone: phone.trim() || undefined,
         email: email.trim() || undefined,
+        password: joinMethod === 'password' ? password : undefined,
+        joinMethod,
+        channel,
         companyName: companyName.trim() || undefined,
         district: district || undefined,
         language: language || undefined,
@@ -98,15 +140,23 @@ export default function Register() {
         cin: cin.trim() || undefined,
       });
 
-      setSnack({
-        open: true,
-        message: 'Account created successfully! Redirecting...',
-        severity: 'success',
-      });
+      if (joinMethod === 'magic-link') {
+        setSnack({
+          open: true,
+          message: `Account created! One-time magic link sent to ${phone} via ${channel.toUpperCase()}.`,
+          severity: 'success',
+        });
+      } else {
+        setSnack({
+          open: true,
+          message: 'Account created with password! Redirecting...',
+          severity: 'success',
+        });
+      }
 
       setTimeout(() => {
         navigate(ROLE_HOME[user.role] || '/');
-      }, 500);
+      }, 700);
     } catch (err) {
       setSnack({
         open: true,
@@ -166,11 +216,11 @@ export default function Register() {
             <Tab label="Register" />
           </Tabs>
 
-          {/* Role Selection */}
-          <Typography variant="subtitle2" sx={{ fontWeight: 700, mb: 1, color: 'text.secondary' }}>
-            SELECT YOUR ROLE:
+          {/* ── Step 1: Role Selection ── */}
+          <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, color: 'text.secondary', display: 'block', letterSpacing: '0.05em' }}>
+            1. SELECT YOUR ROLE:
           </Typography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mb: 3 }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, mb: 2.5 }}>
             <Button
               variant={role === 'trainee' ? 'contained' : 'outlined'}
               size="small"
@@ -215,7 +265,96 @@ export default function Register() {
             </Button>
           </Box>
 
-          {/* Dynamic Registration Form */}
+          {/* ── Step 2: Choose Join Method (Password vs Magic Link) ── */}
+          <Typography variant="caption" sx={{ fontWeight: 700, mb: 1, color: 'text.secondary', display: 'block', letterSpacing: '0.05em' }}>
+            2. CHOOSE HOW YOU'D LIKE TO JOIN:
+          </Typography>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: 1.5,
+              mb: 3,
+              p: 0.5,
+              bgcolor: '#F8FAFC',
+              borderRadius: '12px',
+              border: '1px solid #ECEEF4',
+            }}
+          >
+            <Button
+              onClick={() => setJoinMethod('password')}
+              variant={joinMethod === 'password' ? 'contained' : 'text'}
+              startIcon={<LockOutlinedIcon />}
+              sx={{
+                borderRadius: '9px',
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                bgcolor: joinMethod === 'password' ? '#6C5CE7' : 'transparent',
+                color: joinMethod === 'password' ? '#FFFFFF' : '#64748B',
+                boxShadow: joinMethod === 'password' ? '0 2px 8px rgba(108,92,231,0.25)' : 'none',
+                '&:hover': {
+                  bgcolor: joinMethod === 'password' ? '#5A4AD1' : '#F1F5F9',
+                },
+              }}
+            >
+              Join with Password
+            </Button>
+
+            <Button
+              onClick={() => setJoinMethod('magic-link')}
+              variant={joinMethod === 'magic-link' ? 'contained' : 'text'}
+              startIcon={<AutoAwesomeIcon />}
+              sx={{
+                borderRadius: '9px',
+                py: 1,
+                textTransform: 'none',
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                bgcolor: joinMethod === 'magic-link' ? '#6C5CE7' : 'transparent',
+                color: joinMethod === 'magic-link' ? '#FFFFFF' : '#64748B',
+                boxShadow: joinMethod === 'magic-link' ? '0 2px 8px rgba(108,92,231,0.25)' : 'none',
+                '&:hover': {
+                  bgcolor: joinMethod === 'magic-link' ? '#5A4AD1' : '#F1F5F9',
+                },
+              }}
+            >
+              Join with Magic Link
+            </Button>
+          </Box>
+
+          {/* Join Method Hint */}
+          <Box
+            sx={{
+              p: 1.5,
+              mb: 2.5,
+              borderRadius: '10px',
+              bgcolor: joinMethod === 'password' ? '#F5F3FF' : '#EFF6FF',
+              border: `1px solid ${joinMethod === 'password' ? '#DDD6FE' : '#BFDBFE'}`,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.25,
+            }}
+          >
+            {joinMethod === 'password' ? (
+              <>
+                <VpnKeyIcon sx={{ color: '#6C5CE7', fontSize: 20 }} />
+                <Typography sx={{ fontSize: '0.8rem', color: '#4B5563', lineHeight: 1.4 }}>
+                  <strong>Password Access:</strong> Set a secure password to sign in from any browser using your email or phone.
+                </Typography>
+              </>
+            ) : (
+              <>
+                <AutoAwesomeIcon sx={{ color: '#2563EB', fontSize: 20 }} />
+                <Typography sx={{ fontSize: '0.8rem', color: '#4B5563', lineHeight: 1.4 }}>
+                  <strong>Passwordless Access:</strong> No passwords to remember. You will receive a 1-click magic link via WhatsApp or SMS.
+                </Typography>
+              </>
+            )}
+          </Box>
+
+          {/* ── Registration Form ── */}
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             {/* Common Name Field */}
             <TextField
@@ -234,7 +373,7 @@ export default function Register() {
               }}
             />
 
-            {/* Employer / Provider Specific: Organization Name */}
+            {/* Employer / Provider: Organization Name */}
             {role === 'employer' && (
               <TextField
                 id="register-company"
@@ -271,7 +410,7 @@ export default function Register() {
               />
             )}
 
-            {/* Phone Number */}
+            {/* Phone Number (Required for Magic Link, or recommended for password) */}
             <TextField
               id="register-phone"
               label="Phone Number"
@@ -280,8 +419,12 @@ export default function Register() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+91 98765 43210"
-              required={role === 'trainee'}
-              helperText={role === 'trainee' ? 'Used for passwordless login & outcome check-ins' : ''}
+              required={joinMethod === 'magic-link' || role === 'trainee'}
+              helperText={
+                joinMethod === 'magic-link'
+                  ? 'Required: Your one-time login link will be delivered here'
+                  : 'Can be used to log in along with password'
+              }
               slotProps={{
                 input: {
                   startAdornment: <PhoneAndroidIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
@@ -289,24 +432,105 @@ export default function Register() {
               }}
             />
 
-            {/* Email Address (Mandatory/recommended for Employer/Provider) */}
-            {(role === 'employer' || role === 'provider') && (
-              <TextField
-                id="register-email"
-                label="Official Email Address"
-                type="email"
-                fullWidth
-                size="medium"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                required
-                slotProps={{
-                  input: {
-                    startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
-                  },
-                }}
-              />
+            {/* Delivery Channel for Magic Link */}
+            {joinMethod === 'magic-link' && (
+              <FormControl fullWidth size="medium">
+                <InputLabel id="channel-label">Deliver Magic Link Via</InputLabel>
+                <Select
+                  labelId="channel-label"
+                  id="register-channel"
+                  value={channel}
+                  label="Deliver Magic Link Via"
+                  onChange={(e) => setChannel(e.target.value)}
+                >
+                  <MenuItem value="whatsapp">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <WhatsAppIcon sx={{ color: '#25D366', fontSize: 20 }} />
+                      <span>WhatsApp Message (Instant)</span>
+                    </Box>
+                  </MenuItem>
+                  <MenuItem value="sms">
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                      <SmsIcon sx={{ color: '#2563EB', fontSize: 20 }} />
+                      <span>SMS Text Message</span>
+                    </Box>
+                  </MenuItem>
+                </Select>
+              </FormControl>
+            )}
+
+            {/* Email Address */}
+            <TextField
+              id="register-email"
+              label={joinMethod === 'password' ? 'Email Address' : 'Email Address (Optional)'}
+              type="email"
+              fullWidth
+              size="medium"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="name@example.com"
+              required={role === 'employer' || role === 'provider' || (joinMethod === 'password' && !phone.trim())}
+              slotProps={{
+                input: {
+                  startAdornment: <EmailIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                },
+              }}
+            />
+
+            {/* Password Fields (Only when Join with Password is selected) */}
+            {joinMethod === 'password' && (
+              <>
+                <TextField
+                  id="register-password"
+                  label="Choose Password"
+                  type={showPassword ? 'text' : 'password'}
+                  fullWidth
+                  size="medium"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Minimum 6 characters"
+                  required
+                  helperText="At least 6 characters"
+                  slotProps={{
+                    input: {
+                      startAdornment: <LockOutlinedIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
+                            {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+
+                <TextField
+                  id="register-confirm-password"
+                  label="Confirm Password"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  fullWidth
+                  size="medium"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password"
+                  required
+                  error={Boolean(confirmPassword && password !== confirmPassword)}
+                  helperText={confirmPassword && password !== confirmPassword ? 'Passwords do not match' : ''}
+                  slotProps={{
+                    input: {
+                      startAdornment: <LockOutlinedIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton onClick={() => setShowConfirmPassword(!showConfirmPassword)} edge="end" size="small">
+                            {showConfirmPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+              </>
             )}
 
             {/* District Selection */}
@@ -343,9 +567,10 @@ export default function Register() {
                   startAdornment={<LanguageIcon sx={{ mr: 1, color: 'text.secondary', fontSize: 20 }} />}
                 >
                   <MenuItem value="en">English</MenuItem>
+                  <MenuItem value="as">Assamese (অসমীয়া)</MenuItem>
                   <MenuItem value="hi">Hindi (हिन्दी)</MenuItem>
-                  <MenuItem value="mr">Marathi (मराठी)</MenuItem>
                   <MenuItem value="bn">Bengali (বাংলা)</MenuItem>
+                  <MenuItem value="mr">Marathi (मराठी)</MenuItem>
                   <MenuItem value="ta">Tamil (தமிழ்)</MenuItem>
                 </Select>
               </FormControl>
@@ -387,10 +612,25 @@ export default function Register() {
                 py: 1.5,
                 fontWeight: 700,
                 fontSize: '1rem',
-                boxShadow: '0 4px 14px rgba(113,201,206,0.3)',
+                borderRadius: '10px',
+                background: joinMethod === 'password'
+                  ? 'linear-gradient(135deg, #6C5CE7 0%, #4834D4 100%)'
+                  : 'linear-gradient(135deg, #71C9CE 0%, #5BB0B5 100%)',
+                boxShadow: '0 4px 14px rgba(108,92,231,0.25)',
+                '&:hover': {
+                  background: joinMethod === 'password'
+                    ? 'linear-gradient(135deg, #5A4AD1 0%, #3B2BBF 100%)'
+                    : 'linear-gradient(135deg, #5BB0B5 0%, #44979C 100%)',
+                },
               }}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : `Register as ${role.toUpperCase()}`}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : joinMethod === 'password' ? (
+                `Join with Password as ${role.toUpperCase()}`
+              ) : (
+                `Join with Magic Link as ${role.toUpperCase()}`
+              )}
             </Button>
           </Box>
 
@@ -427,7 +667,7 @@ export default function Register() {
         <Alert
           severity={snack.severity}
           onClose={() => setSnack((s) => ({ ...s, open: false }))}
-          sx={{ width: '100%' }}
+          sx={{ width: '100%', borderRadius: '10px', fontWeight: 600 }}
         >
           {snack.message}
         </Alert>

@@ -21,6 +21,10 @@ app.use(express.json());
 // ── Routes ──
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/admin', require('./routes/admin'));
+app.use('/api/courses', require('./routes/course'));
+app.use('/api/trainee', require('./routes/trainee'));
+app.use('/api/surveys', require('./routes/survey'));
+app.use('/api/verifications', require('./routes/verification'));
 
 // ── Health check ──
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));

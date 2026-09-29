@@ -9,7 +9,8 @@ const magicLinkLimiter = rateLimit({
   message: { message: 'Too many magic link requests. Try again in an hour.' },
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req) => req.body.phone || req.ip,
+  validate: { keyGeneratorIpFallback: false },
+  keyGenerator: (req) => req.body?.phone || req.ip,
 });
 
 /**

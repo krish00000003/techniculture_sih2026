@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
-  Box, Typography, Card, CardContent, Grid, MenuItem, Select, FormControl,
-  InputLabel, Button, Chip, Skeleton, Snackbar, Alert as MuiAlert, Divider,
+  Box, Typography, Card, CardContent, MenuItem, Select, FormControl,
+  InputLabel, Button, Chip, Skeleton, Snackbar, Alert as MuiAlert,
 } from '@mui/material';
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -50,10 +50,6 @@ export default function Actions() {
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchAlerts();
-  }, [statusFilter, severityFilter]);
-
   const fetchAlerts = async () => {
     setLoading(true);
     try {
@@ -69,6 +65,10 @@ export default function Actions() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchAlerts();
+  }, [statusFilter, severityFilter]);
 
   const handleAction = async (id, status) => {
     try {

@@ -16,9 +16,10 @@ const traineeSchema = new mongoose.Schema(
     jobPoolOptIn: { type: Boolean, default: false },
     employmentStatus: {
       type: String,
-      enum: ['employed', 'self-employed', 'unemployed', 'apprentice', 'unknown'],
+      enum: ['employed', 'self-employed', 'unemployed', 'apprentice', 'unknown', 'seeking'],
       default: 'unknown',
     },
+    upiId: { type: String },
   },
   { timestamps: true }
 );

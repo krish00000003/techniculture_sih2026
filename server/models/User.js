@@ -7,11 +7,12 @@ const userSchema = new mongoose.Schema(
       enum: ['trainee', 'employer', 'provider', 'admin'],
       required: true,
     },
-    googleId: { type: String, sparse: true },
-    email: { type: String, sparse: true },
-    phone: { type: String, sparse: true },
+    googleId: { type: String, unique: true, sparse: true },
+    email: { type: String, index: true, sparse: true },
+    phone: { type: String, index: true, sparse: true },
+    password: { type: String },
     name: { type: String, required: true },
-    outcomeId: { type: String, sparse: true },
+    outcomeId: { type: String, index: true, sparse: true },
     status: {
       type: String,
       enum: ['active', 'inactive', 'suspended'],
@@ -20,9 +21,5 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-userSchema.index({ googleId: 1 }, { unique: true, sparse: true });
-userSchema.index({ phone: 1 }, { sparse: true });
-userSchema.index({ email: 1 }, { sparse: true });
 
 module.exports = mongoose.model('User', userSchema);

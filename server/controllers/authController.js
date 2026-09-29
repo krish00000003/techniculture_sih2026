@@ -1,5 +1,6 @@
 const { OAuth2Client } = require('google-auth-library');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 const Trainee = require('../models/Trainee');
 const Employer = require('../models/Employer');
@@ -21,6 +22,65 @@ function signJWT(user) {
     { expiresIn: '30d' }
   );
 }
+
+/**
+ * POST /api/auth/login
+ * Body: { identifier, password }
+ * identifier: email or phone number
+ */
+exports.login = async (req, res) => {
+  try {
+    const { identifier, password } = req.body;
+    if (!identifier || !password) {
+      return res.status(400).json({ message: 'Email or phone and password are required' });
+    }
+
+    const cleanId = identifier.trim();
+    // Search by email (case-insensitive) or by exact phone
+    const user = await User.findOne({
+      $or: [
+        { email: cleanId.toLowerCase() },
+        { phone: cleanId },
+      ],
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Invalid credentials. User not found.' });
+    }
+
+    if (user.status === 'suspended') {
+      return res.status(403).json({ message: 'Account is suspended. Please contact support.' });
+    }
+
+    if (!user.password) {
+      return res.status(400).json({
+        message: 'This account was created with Magic Link or Google Sign-In without a password. Please sign in using Magic Link or Google.',
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials. Incorrect password.' });
+    }
+
+    const token = signJWT(user);
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        outcomeId: user.outcomeId,
+      },
+      message: 'Logged in successfully',
+    });
+  } catch (err) {
+    console.error('Password login error:', err);
+    res.status(500).json({ message: 'Login failed due to a server error' });
+  }
+};
 
 /**
  * POST /api/auth/google
@@ -180,6 +240,18 @@ exports.devLogin = async (req, res) => {
       });
     }
 
+    if (role === 'trainee') {
+      let trainee = await Trainee.findOne({ userId: user._id });
+      if (!trainee) {
+        await Trainee.create({
+          userId: user._id,
+          district: 'Kolkata',
+          employmentStatus: 'unemployed',
+          jobPoolOptIn: true,
+        });
+      }
+    }
+
     const token = signJWT(user);
     res.json({
       token,
@@ -224,6 +296,8 @@ exports.register = async (req, res) => {
       name,
       email,
       phone,
+      password,
+      joinMethod = 'password',
       companyName,
       gstin,
       cin,
@@ -239,6 +313,15 @@ exports.register = async (req, res) => {
       return res.status(400).json({ message: 'Name is required' });
     }
 
+    // Hash password if provided
+    let hashedPassword = null;
+    if (password && password.trim()) {
+      if (password.trim().length < 6) {
+        return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+      }
+      hashedPassword = await bcrypt.hash(password.trim(), 10);
+    }
+
     if (role === 'trainee') {
       if (!phone || !phone.trim()) {
         return res.status(400).json({ message: 'Phone number is required for trainee registration' });
@@ -250,7 +333,8 @@ exports.register = async (req, res) => {
       if (user) {
         // Complete/update existing trainee profile
         user.name = name.trim();
-        if (email) user.email = email.trim();
+        if (email) user.email = email.trim().toLowerCase();
+        if (hashedPassword) user.password = hashedPassword;
         if (!user.outcomeId) {
           user.outcomeId = 'OID-' + Math.floor(100000 + Math.random() * 900000);
         }
@@ -271,6 +355,18 @@ exports.register = async (req, res) => {
           if (language) trainee.language = language;
           if (!trainee.outcomeId) trainee.outcomeId = user.outcomeId;
           await trainee.save();
+        }
+
+        // If user chose magic link, generate and send one
+        if (joinMethod === 'magic-link') {
+          const { raw, hashed } = generateToken();
+          await MagicLink.create({
+            token: hashed,
+            userId: user._id,
+            expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+            channel: 'whatsapp',
+          });
+          await sendMagicLink(cleanPhone, raw, 'whatsapp');
         }
 
         const token = signJWT(user);
@@ -294,7 +390,8 @@ exports.register = async (req, res) => {
       user = await User.create({
         name: name.trim(),
         phone: cleanPhone,
-        email: email ? email.trim() : undefined,
+        email: email ? email.trim().toLowerCase() : undefined,
+        password: hashedPassword || undefined,
         role: 'trainee',
         outcomeId,
         status: 'active',
@@ -315,6 +412,18 @@ exports.register = async (req, res) => {
         matchScore: 100,
         reviewStatus: 'auto-merged',
       });
+
+      // If trainee chose magic link, generate and send one
+      if (joinMethod === 'magic-link') {
+        const { raw, hashed } = generateToken();
+        await MagicLink.create({
+          token: hashed,
+          userId: user._id,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+          channel: 'whatsapp',
+        });
+        await sendMagicLink(cleanPhone, raw, 'whatsapp');
+      }
 
       const token = signJWT(user);
       return res.status(201).json({
@@ -342,7 +451,7 @@ exports.register = async (req, res) => {
       const query = [];
       if (email) query.push({ email: email.trim().toLowerCase() });
       if (phone) query.push({ phone: phone.trim() });
-      
+
       let user = null;
       if (query.length > 0) {
         user = await User.findOne({ $or: query });
@@ -351,6 +460,7 @@ exports.register = async (req, res) => {
       if (user) {
         user.name = name.trim();
         user.role = 'employer';
+        if (hashedPassword) user.password = hashedPassword;
         await user.save();
 
         let emp = await Employer.findOne({ userId: user._id });
@@ -388,6 +498,7 @@ exports.register = async (req, res) => {
         name: name.trim(),
         email: email ? email.trim().toLowerCase() : undefined,
         phone: phone ? phone.trim() : undefined,
+        password: hashedPassword || undefined,
         role: 'employer',
         status: 'active',
       });
@@ -426,7 +537,7 @@ exports.register = async (req, res) => {
       const query = [];
       if (email) query.push({ email: email.trim().toLowerCase() });
       if (phone) query.push({ phone: phone.trim() });
-      
+
       let user = null;
       if (query.length > 0) {
         user = await User.findOne({ $or: query });
@@ -435,6 +546,7 @@ exports.register = async (req, res) => {
       if (user) {
         user.name = name.trim();
         user.role = 'provider';
+        if (hashedPassword) user.password = hashedPassword;
         await user.save();
 
         let prov = await Provider.findOne({ userId: user._id });
@@ -469,6 +581,7 @@ exports.register = async (req, res) => {
         name: name.trim(),
         email: email ? email.trim().toLowerCase() : undefined,
         phone: phone ? phone.trim() : undefined,
+        password: hashedPassword || undefined,
         role: 'provider',
         status: 'active',
       });

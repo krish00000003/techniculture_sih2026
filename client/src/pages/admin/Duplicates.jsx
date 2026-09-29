@@ -79,10 +79,6 @@ export default function Duplicates() {
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchDuplicates();
-  }, []);
-
   const fetchDuplicates = async () => {
     setLoading(true);
     try {
@@ -94,6 +90,10 @@ export default function Duplicates() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchDuplicates();
+  }, []);
 
   const handleMerge = async (id) => {
     try {

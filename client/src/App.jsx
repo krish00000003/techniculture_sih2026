@@ -12,8 +12,16 @@ import MagicLinkVerify from './pages/auth/MagicLink';
 
 // Role home pages
 import TraineeDashboard from './pages/trainee/Dashboard';
+import TraineePublicProfile from './pages/trainee/PublicProfile';
+import TraineeJobs from './pages/trainee/Jobs';
+import TraineeRewards from './pages/trainee/Rewards';
+import TraineeMe from './pages/trainee/Me';
 import EmployerTalent from './pages/employer/Talent';
+import EmployerCourseCompletions from './pages/employer/CourseCompletions';
+import EmployerVerificationsQueue from './pages/employer/VerificationsQueue';
+import PublicVerify from './pages/employer/PublicVerify';
 import ProviderUpload from './pages/provider/Upload';
+import ProviderCourseCompletions from './pages/provider/CourseCompletions';
 
 // Admin pages (S14–S19)
 import AdminRankings from './pages/admin/Rankings';
@@ -47,16 +55,18 @@ export default function App() {
           <Route path="login" element={<Login />} />
           <Route path="register" element={<Register />} />
           <Route path="auth/magic-link/:token" element={<MagicLinkVerify />} />
+          <Route path="verify/:token" element={<PublicVerify />} />
+          <Route path="employer/verify/:token" element={<PublicVerify />} />
         </Route>
 
         {/* ── Trainee routes ── */}
         <Route element={<ProtectedRoute roles={['trainee']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="trainee/dashboard" element={<TraineeDashboard />} />
-            {/* Phase 2+ stubs */}
-            <Route path="trainee/cv" element={<TraineeDashboard />} />
-            <Route path="trainee/jobs" element={<TraineeDashboard />} />
-            <Route path="trainee/me" element={<TraineeDashboard />} />
+            <Route path="trainee/cv" element={<TraineePublicProfile />} />
+            <Route path="trainee/jobs" element={<TraineeJobs />} />
+            <Route path="trainee/rewards" element={<TraineeRewards />} />
+            <Route path="trainee/me" element={<TraineeMe />} />
           </Route>
         </Route>
 
@@ -64,7 +74,8 @@ export default function App() {
         <Route element={<ProtectedRoute roles={['employer']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="employer/talent" element={<EmployerTalent />} />
-            <Route path="employer/verifications" element={<EmployerTalent />} />
+            <Route path="employer/courses" element={<EmployerCourseCompletions />} />
+            <Route path="employer/verifications" element={<EmployerVerificationsQueue />} />
             <Route path="employer/profile" element={<EmployerTalent />} />
           </Route>
         </Route>
@@ -73,6 +84,7 @@ export default function App() {
         <Route element={<ProtectedRoute roles={['provider']} />}>
           <Route element={<DashboardLayout />}>
             <Route path="provider/upload" element={<ProviderUpload />} />
+            <Route path="provider/courses" element={<ProviderCourseCompletions />} />
             <Route path="provider/alerts" element={<ProviderUpload />} />
           </Route>
         </Route>
@@ -86,6 +98,13 @@ export default function App() {
             <Route path="admin/attrition" element={<AdminAttrition />} />
             <Route path="admin/duplicates" element={<AdminDuplicates />} />
             <Route path="admin/settings" element={<AdminSettings />} />
+          </Route>
+        </Route>
+
+        {/* ── Trainee public profile (accessible by employer/provider/trainee/admin) ── */}
+        <Route element={<ProtectedRoute roles={['employer', 'provider', 'trainee', 'admin']} />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="trainee/profile/:traineeId" element={<TraineePublicProfile />} />
           </Route>
         </Route>
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import {
-  Box, Typography, Card, CardContent, MenuItem, Select, FormControl,
+  Box, Typography, Card, MenuItem, Select, FormControl,
   InputLabel, Button, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, TableSortLabel, Paper, Chip, Skeleton, Snackbar, Alert,
 } from '@mui/material';
@@ -17,10 +17,6 @@ export default function Rankings() {
   const [loading, setLoading] = useState(true);
   const [snack, setSnack] = useState({ open: false, message: '' });
 
-  useEffect(() => {
-    fetchData();
-  }, [district, period]);
-
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -32,6 +28,10 @@ export default function Rankings() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchData();
+  }, [district, period]);
 
   const handleSort = (col) => {
     const isAsc = orderBy === col && order === 'asc';

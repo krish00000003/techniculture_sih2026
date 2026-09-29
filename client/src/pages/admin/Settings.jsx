@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import {
-  Box, Typography, Card, CardContent, TextField, Button, Grid,
+  Box, Typography, Card, CardContent, TextField, Button,
   Divider, Skeleton, Snackbar, Alert,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
@@ -28,10 +28,6 @@ export default function Settings() {
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState({ open: false, message: '', severity: 'success' });
 
-  useEffect(() => {
-    fetchSettings();
-  }, []);
-
   const fetchSettings = async () => {
     setLoading(true);
     try {
@@ -43,6 +39,10 @@ export default function Settings() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchSettings();
+  }, []);
 
   const handleChange = (section, field, value) => {
     setSettings((prev) => ({

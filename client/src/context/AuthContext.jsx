@@ -53,6 +53,13 @@ export function AuthProvider({ children }) {
     return data.user;
   };
 
+  /** Password login (email or phone + password) */
+  const loginWithPassword = async (identifier, password) => {
+    const { data } = await api.post('/auth/login', { identifier, password });
+    handleLoginResponse(data);
+    return data.user;
+  };
+
   /** Request magic link */
   const requestMagicLink = async (phone, channel = 'whatsapp') => {
     const { data } = await api.post('/auth/magic-link', { phone, channel });
@@ -92,6 +99,7 @@ export function AuthProvider({ children }) {
       user,
       loading,
       loginWithGoogle,
+      loginWithPassword,
       requestMagicLink,
       verifyMagicLink,
       register,
