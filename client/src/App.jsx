@@ -34,6 +34,7 @@ import UsersMinuteData from './pages/admin/UsersMinuteData';
 
 // Protected route wrapper
 import ProtectedRoute from './routes/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 /**
  * Redirect "/" to the user's role home if logged in, or to /login.
@@ -46,7 +47,8 @@ function RootRedirect() {
 
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
+    <ErrorBoundary>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         {/* Root redirect */}
         <Route index element={<RootRedirect />} />
@@ -114,6 +116,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

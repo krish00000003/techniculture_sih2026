@@ -40,6 +40,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import BlockIcon from '@mui/icons-material/Block';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -598,7 +599,7 @@ export default function UsersMinuteData() {
                                 onClick={() => handleStatusChange(u._id, 'active')}
                                 sx={{ p: 0.6 }}
                               >
-                                <CheckCircleOutlineIcon fontSize="small" />
+                                <CheckCircleOutlinedIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
