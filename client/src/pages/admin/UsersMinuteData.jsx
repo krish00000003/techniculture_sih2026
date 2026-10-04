@@ -40,7 +40,6 @@ import SearchIcon from '@mui/icons-material/Search';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import BlockIcon from '@mui/icons-material/Block';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
@@ -206,7 +205,7 @@ export default function UsersMinuteData() {
         message: res.data.message || `Status updated to ${newStatus}`,
         severity: 'success',
       });
-      fetchUsers();
+      await fetchUsers();
     } catch (err) {
       setSnack({
         open: true,
@@ -333,12 +332,14 @@ export default function UsersMinuteData() {
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && fetchUsers()}
             sx={{ flexGrow: 1, minWidth: 260 }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
-                </InputAdornment>
-              ),
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                  </InputAdornment>
+                ),
+              },
             }}
           />
 
@@ -529,7 +530,7 @@ export default function UsersMinuteData() {
                       {/* Status */}
                       <TableCell>
                         <Chip
-                          label={u.status.replace('_', ' ').toUpperCase()}
+                          label={(u.status || 'active').replace('_', ' ').toUpperCase()}
                           size="small"
                           sx={{
                             fontWeight: 700,
@@ -599,7 +600,7 @@ export default function UsersMinuteData() {
                                 onClick={() => handleStatusChange(u._id, 'active')}
                                 sx={{ p: 0.6 }}
                               >
-                                <CheckCircleOutlinedIcon fontSize="small" />
+                                <CheckCircleIcon fontSize="small" />
                               </IconButton>
                             </Tooltip>
                           )}
@@ -648,11 +649,13 @@ export default function UsersMinuteData() {
         onClose={() => setInspectorOpen(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            bgcolor: isDark ? '#111B1E' : '#FFFFFF',
-            backgroundImage: 'none',
+        slotProps={{
+          paper: {
+            sx: {
+              borderRadius: 3,
+              bgcolor: isDark ? '#111B1E' : '#FFFFFF',
+              backgroundImage: 'none',
+            },
           },
         }}
       >
